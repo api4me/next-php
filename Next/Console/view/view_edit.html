@@ -1,0 +1,61 @@
+{{"{%"}} extends '{{data.module}}/site.html' {{"%}"}}
+{{"{%"}} block nav {{"%}"}}
+// Nav here
+{{"{%"}} endblock {{"%}"}}
+
+{{"{%"}} block main {{"%}"}}
+<div class="page_setprofile">
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="set_Profile_1">
+    <form action="#" method="post">
+    {% for row in data.table if row not in ["id", "created", "updated"] %}
+<dl class="item clearfix">
+        <dt>
+            <h5>{{row}}</h5>
+            <p class="desc"></p>
+        </dt>
+        <dd>
+            <input name="{{row}}" class="form_input" value="{{"{{"}}data.{{row}}{{"}}"}}">
+        </dd>
+    </dl>
+    {% endfor %}
+    </form>
+    </div>
+
+    <div>
+        <form>
+        <dl class="item item_submit clearfix">
+            <a href="javascript:void(0);" data-id="{{"{{"}}data.id{{"}}"}}" class="btn-save common_btn common_btn_orange common_btn_big">Save Changes</a>
+        </dl>
+        </form>
+    </div>
+</form>
+</div>
+</div>
+{{"{%"}} endblock {{"%}"}}
+
+{{"{%"}} block script {{"%}"}}
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".select_land").select2({minimumResultsForSearch: Infinity});
+
+        // ------------------------
+        // Form save.
+        // ------------------------
+        $(".btn-save").click(function() {
+            var data = {};
+    {% for val in data.table if val not in ["id", "created", "updated"] %}
+        data.{{val}} = $.trim($("[name='{{val}}']").val());
+    {% endfor %}
+        data.id = $(this).attr("data-id");
+
+            $.post("/{{data.module}}/{{data.control}}/edit/", data, function(resp) {
+                alert(resp.msg);
+                if (resp.ret == "0") {
+                    location.href = "/{{data.module}}/{{data.control}}/edit/?id=" + resp.id;
+                }
+            }, "json");
+        });
+    });
+</script>
+{{"{%"}} endblock {{"%}"}}

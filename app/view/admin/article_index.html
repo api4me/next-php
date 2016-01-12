@@ -1,0 +1,61 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="article-list" class="well well-small clearfix">
+    <div>
+        <h3>文章管理</h3>
+    </div>
+    <div class="search bb5">
+        <form name="form-search" method="post" class="form-inline">
+            <select name="type" class="span2">
+            	<option value="">---文章类型---</option>
+            	{% for k,val in type %}
+            	<option value="{{k}}" {% if search.type == k %}selected{% endif %}>{{val}}</option>
+				{% endfor %}
+            </select>
+            <input type="text" name="name" class="span2" placeholder="文章名" value="{{search.name}}"/>
+            <button class="btn btn-primary search">查询</button>
+        </form>
+    </div>
+    <table class="table table-hover table-mob">
+    <thead>
+        <tr>
+            <th width="5%">#</th>
+            <th width="10%">类别</th>
+            <th width="45%">文章名</th>
+            <th width="17%">最后更新</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for key, item in data %}
+        <tr>
+            <td class="center">{{loop.index}}</td>
+            <td class="center">{{item.type_name}}</td>
+            <td class="center">
+                {{mb_substr(item.name, 0, 28,'utf-8')}}<br>
+                <div class="J-article-href-{{item.id}} hide article-link">
+                    <span class="td-details">http://wx.ertungey.com/shop/article/?id={{item.id}}&type=article&sort=desc</span>
+                    <i class="icon-remove close" data-id="{{item.id}}"></i>
+                </div>
+            </td>
+            <td class="center">{{item.updated}}</td>
+            <td>
+                <div class="btn-group hide">
+                    <button class="btn btn-link btn-small edit" data-id="{{item.id}}"><i class="icon-edit"></i> 编辑</button>
+                    {% if item.type=='article' %}
+                    <button class="btn btn-link btn-small delete" data-id="{{item.id}}"><i class="icon-trash"></i> 删除</button>
+                    <!--<button class="btn btn-link btn-small see" data-id="{{item.id}}"><i class="icon-eye-open"></i> 查看链接</button>-->
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7"><em> 木有文章呢。</em></td></tr>
+    {% endfor %}
+    </tbody>
+    </table>
+	<div>
+        <button class="btn span2 btn-small btn-success add">新增文章</button>
+    </div>
+</div>
+{% endblock %}

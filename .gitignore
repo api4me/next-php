@@ -1,0 +1,4 @@
+app/cache/twig/*
+app/log/*
+assets/upload/*
+*.swp

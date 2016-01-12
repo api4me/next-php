@@ -1,0 +1,26 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="export" class="well well-small clearfix">
+	<div class="search bb5">
+    <h3>报表统计</h3>
+        <em>1.销售统计按照月份来统计：日期格式为：XXXX-XX；</em> <br>
+        <em>2.用户和券的统计按照日期统计：日期格式为：XXXX-XX-XX。</em><br>
+        <em>3.用户和券的统计:不填写日期或者填写的日期大于统计的最后一天的日期，系统默认导出统计的最后一天的统计数据。</em><br>
+        <em>4.销售统计:不填写日期系统将默认导出本月已统计的销售统计。</em>
+        <form name="form-export" method="post" class="form-inline" action="/admin/statistics/index/">
+            <select name="type" class="span2">
+                <option value="">--类型--</option>
+                <option value="user">用户</option>
+                <option value="ticket">券</option>
+                <option value="order">销售</option>
+            </select>
+            <input name="date" class="span2" placeholder="日期" value="">
+            <input name="start" class="span2" placeholder="开始日期" value="" style="display:none;">
+            <input name="end" class="span2" placeholder="结束日期" value="" style="display:none;">
+            <div class="serch-button text-right">
+                <button class="btn btn-primary search">下载</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

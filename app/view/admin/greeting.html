@@ -1,0 +1,21 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="greeting" class="well well-small clearfix">
+    <div>
+        <h3>关注信息回复</h3>
+    </div>
+
+    {% set param = data.key | split('-') %}
+    <div id="wechat" data-type="{{param[0] | default('text')}}" data-id="{{param[1]}}">
+        <div style="min-height: 300px;">
+        加载中...
+        </div>
+    </div>
+
+    <div class="operate-footer scroll-bottom">
+        <button class="btn span2 btn-small btn-success save">保存</button>
+        <button class="btn span2 btn-small del">删除</button>
+    </div>
+
+</div>
+{% endblock %}

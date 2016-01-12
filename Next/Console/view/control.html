@@ -1,0 +1,120 @@
+<?php
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
+/**
+* @filename {{data.file}}.php
+* @touch date {{data.date}} 
+* @author: Fred<fred.zhou@foxmail.com>
+* @license: http://www.zend.com/license/3_0.txt PHP License 3.0"
+* @version 1.0.0
+*/
+namespace app\control\{{data.module}};
+
+class {{data.control}} extends \Next\Core\Control {
+
+{{"/*{{{ construct */"}}
+	public function __construct() {
+		parent::__construct();
+	}
+{{"/*}}}*/"}}
+{{"/*{{{ index */"}}
+    public function index() {
+        $out = array();
+
+        $model = new \app\model\{{data.model}}();
+        if ($this->app->request->isPost()) {
+            $post = $this->app->request->post();
+            $keywords = $post["keywords"];
+
+            $out = array('code' => "0", 'msg' => 'Load success');
+            $out["data"] = $model->loadByKeywords($keywords);
+            $this->rendJSON($out);
+        }
+
+        $this->display("/site/{{data.control | lower}}_index.html", $out);
+    }
+{{"/*}}}*/"}}
+{{"/*{{{ add */"}}
+    public function add() {
+        $this->edit();
+    }
+{{"/*}}}*/"}}
+{{"/*{{{ edit */"}}
+    public function edit() {
+        $out = array();
+
+        $id = $this->app->request->params("id");
+        $model = new \app\model\Store();
+        if ($this->app->request->isPost()) {
+            $post = $this->app->request->post();
+
+            // Save
+            // --------------
+            $d = array(
+        {% for val in data.table if val not in ["id", "created", "updated"] %}
+        "{{val}}" => $post["{{val}}"],
+        {% endfor %}
+        "updated*f" => "now()",
+            );
+            if ($id) {
+                $w = array(
+                    "id" => $id,
+                );
+                if (!$model->update($d, $w)) {
+                    $out["ret"] = "400101";
+                    $out["msg"] = "System is busy, please try later";
+                    $this->rendJSON($out);
+                }
+            } else {
+                $d["created*f"] = "now()";
+                if (!$id = $model->add($d)) {
+                    $out["ret"] = "400101";
+                    $out["msg"] = "System is busy, please try later";
+                    $this->rendJSON($out);
+                }
+            }
+            // --------------
+            $out["ret"] = "0";
+            $out["id"] = $id;
+            $out["msg"] = "Save successful";
+            $this->rendJSON($out);
+        }
+
+        $out["data"] = $model->loadById($id);
+        
+        $this->display("/{{data.module}}/{{data.control | lower}}_edit.html", $out);
+    }
+/*}}}*/
+{{"/*{{{ del */"}}
+    public function del() {
+        $out = array();
+
+        if ($this->app->request->isPost()) {
+            $post = $this->app->request->post();
+            if (!$id = $post["id"]) {
+                $out['ret'] = "403";
+                $out['msg'] = 'System is busy, please try later';
+            }
+
+            $u = array(
+                "status" => 9,
+                "updated*f" => "now()",
+            );
+            $w = array(
+                "id" => $id,
+            );
+            $model = new \app\model\{{data.model}}();
+            if ($model->update($u, $w)) {
+                $out['ret'] = "0";
+                $out['msg'] = 'Delete success';
+                $this->rendJSON($out);
+            }
+        }
+
+        $out['ret'] = "403";
+        $out['msg'] = 'System is busy, please try later';
+        $this->rendJSON($out);
+    }
+{{"/*}}}*/"}}
+
+}

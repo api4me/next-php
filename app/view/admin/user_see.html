@@ -1,0 +1,186 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="user-see" class="well well-small clearfix">
+	<input type="hidden" name="uid" value="{{user.id}}"/>
+    <h3>用户详情</h3>
+    <div class="container-fluid">
+	    <div class="row-fluid">
+		    <div class="span6">
+		    <h5>用户基本信息</h5>
+	    	<table  class="table user-news-show">
+	    		<tbody>
+	    			<tr>
+	    				<th>编号：</th>
+	    				<td colspan="3">
+	    					{{str_pad(user.id,7,'0',STR_PAD_LEFT)}}
+	    				</td>
+	    			</tr>
+	    			<tr>
+	    				<th>用户：</th>
+	    				<td colspan="3">
+	    					<div class="J-nickname">
+								<span class="text-error nickname">{{user.nickname}}</span>({{user.name}})
+								<button class="btn btn-link btn-mini nickname-edit" title="点击修改备注"><i class="icon-edit"></i></button>
+							</div>
+							<div class="J-nickname-edit hide">
+								<input name="nickname" value="{{user.nickname}}" placeholder="备注名" class="span10"/>
+								<button class="btn btn-mini btn-primary nickname-commit" >确认</button>
+ 							</div>	
+	    				</td>
+	    			</tr>
+	    			<tr>
+	    				<th width="75">类型：</th>
+	    				<td class="J-type" width="100">
+	    				{% if user.type==1 %}
+	    				好友  <button class="btn btn-link btn-mini level-up" title="点击升级为创始会员"><i class="icon-star-empty"></i></button>
+	    				{% elseif user.type==2 %}
+	    				会员  <button class="btn btn-link btn-mini level-up" title="点击升级为创始会员"><i class="icon-star-empty"></i></button>
+	    				{% elseif user.type==3 %}
+	    				创始会员  <button class="btn btn-link btn-mini level-down" title="点击降级为普通会员"><i class="icon-star"></i></button>
+	    				{% endif %}
+	    				</td>
+	    				<th width="75">状态：</th>
+	    				<td>
+	    				{% if user.status==1 %} 正常 <button class="btn btn-link btn-mini blackList" title="拉入黑名单"><i class="icon-remove"></i></button>
+                        {% else %} 黑户<button class="btn btn-link btn-mini whiteList" title="移出黑名单"><i class="icon-repeat"></i></button>
+                        {% endif %}
+                        </td>
+	    			</tr>
+	    			<tr>
+	    				<th>积分：</th>
+	    				<td><strong class="text-error">{{user.integral}}</strong><a class="btn btn-link btn-mini integral" href="/admin/user/integral/?id={{user.id}}" title="点击查看用户积分详情"><i class="icon-eye-open"></i></a></td>
+	    				<th>水箱：</th>
+	    				<td>{{user.have_water}} 箱</td>
+	    			</tr>
+	    			<!--<tr>
+	    				<th>电话：</th>
+	    				<td class="J-status">{{user.mobile}}
+	    				
+	    				</td>
+	    				<th>性别：</th>
+	    				{% if user.sex==1 %}
+	    				<td>男</td>
+	    				{% elseif user.sex==2 %}
+	    				<td>女</td>
+	    				{% else %}
+	    				<td class="text-error">待确认</td>
+	    				{% endif %}
+	    			</tr>-->
+	    			<tr>
+	    				<th>赠券剩余：</th>
+						<td>
+							<div class="J-coupon">
+								<strong class="text-error coupon">{{couponinfo.available}}</strong>
+								<!--<button class="btn btn-link btn-mini coupon-edit" title="点击修改赠券"><i class="icon-edit"></i></button>-->
+							</div>
+							<div class="J-coupon-edit hide">
+								<input name="coupon" value="{{couponinfo.available}}" class="span4" date-have="{{couponinfo.available}}"/>
+								<button class="btn btn-mini btn-primary coupon-commit" >确认</button>
+ 							</div>
+						</td>
+	    				<th><!--生日：--></th>
+	    				<td><!--{{user.birthday}}--></td>
+	    			</tr>
+	    			<tr>
+	    				<th>赠券明细：</th>
+                        {# Get user who is used coupon #}
+                        {% set used = 0%}
+                        {% for val in couponinfo.history %}
+                        {% if val.to_user %}
+                        {% set used = used + 1 %}
+                        {% endif %}
+                        {% endfor %}
+	    				<td colspan="3">
+	    					共获得<strong class="text-error"> {{couponinfo.available+count(couponinfo.history)+couponinfo.invalid}} 张（不含回收）</strong><br/>
+                            <span class="text-error"> 已送好友 {{count(couponinfo.history)}} 张</span><br/>
+                                                                  已领取 {{used}} 张<br/>
+                                                                  即将过期的有 {{couponinfo.expire}} 张<br/>
+                                                                  过期 {{couponinfo.invalid}} 张<br/>
+                                                                  已回收的赠券 {{couponinfo.recycle}} 张
+    					</td>
+	    			</tr>
+	    			<tr>
+	    				<th>推荐人：</th>
+	    				<td colspan="3">
+	    					<a href="/admin/user/see/?id={{farther.id}}"  title="查看用户明细" >{% if farther.nickname %}{{farther.nickname}}{% else %}{{farther.name}}{% endif %}</a>
+    					</td>
+	    			</tr>
+	    			<tr>
+						<th>下属会员：</th>
+	    				<td colspan="3">
+	    				{% for k,c in children %}
+	    					<a href="/admin/user/see/?id={{k}}" title="查看用户明细">{% if c.nickname %}{{c.nickname}}{% else %}{{c.name}}{% endif %}</a>
+    					{% endfor %}
+	    				</td>
+	    			</tr>
+	    			<tr>
+						<th colspan="2">是否购买过体验装：</th>
+						{% if user.used_experience==1 %}
+						<td colspan="2" class="text-error">是</td>
+						{% else %}
+	    				<td colspan="2" >否</td>
+	    				{% endif %}
+	    			</tr>
+	    			<tr>
+						<th colspan="2">是否已使用赠券兑换：</th>
+						{% if user.used_coupon==1 %}
+						<td colspan="2" class="text-error">是</td>
+						{% else %}
+	    				<td colspan="2" >否</td>
+	    				{% endif %}
+	    			</tr>
+	    			<tr>
+						<th colspan="2">微信标识：</th>
+						<td colspan="2">{{user.openid}}</td>
+	    			</tr>
+	    			<tr>
+						<th colspan="2">最后登录IP：</th>
+						<td colspan="2">{{user.last_ip}}</td>
+	    			</tr>
+	    			<!--<tr>
+						<th colspan="2">登陆次数：</th>
+						<td colspan="2">{{user.log_times}}</td>
+	    			</tr>
+                    -->
+	    		</tbody>
+	    	</table>
+		    </div>
+		    <div class="span6">
+		    	<h5>用户地址</h5>
+		    	{% for v in address %}
+		    	<div class="address-show row-fluid show-grid user-news-show">
+		    		<div class="text-info address">地址：{{v.area}}{{v.address}}</div>
+					<div class="span5">收货人：{{v.consignee}}</div>
+					<div class="span5">电话：{{v.mobile}}</div>
+		    	</div>
+		    	{% endfor %}
+		    	<h5>用户赠券赠送明细</h5>
+		    	{% for k,val in couponinfo.history %}
+		    	<div class="address-show row-fluid show-grid user-news-show">
+					<div class="span6">{{k+1}}.赠送日期：{{val.set_time|date('Y-m-d H:i')}}</div>
+					<div class="span5">
+                        {% if val.to_user %}
+						领取人ID：<a href="/admin/user/see/?id={{val.to_user}}"  title="查看用户明细" >{{str_pad(val.to_user, 7, '0', STR_PAD_LEFT)}}</a>
+                        {% else %}
+                        未领取
+                        {% endif %}
+					</div>
+		    	</div>
+		    	{% endfor %}
+		    	{% if couponinfo.recycle>0 %}
+			    	<h5>用户赠券回收明细</h5>
+			    	{% for k,val in recycle %}
+			    	<div class="address-show row-fluid show-grid user-news-show">
+						<div class="span5">{{k+1}}.赠送日期：{{val.set_time|date('Y-m-d H:i')}}</div>
+						<div class="span5">回收日期：{{val.updated|date('Y-m-d H:i')}}</div>
+			    	</div>
+			    	{% endfor %}
+		    	{% endif %}
+		    </div>
+	    </div>
+    </div>
+	<div class="operate-footer scroll-bottom">
+		<button class="btn back">返回</button>
+	</div>
+</div>
+{% endblock %}

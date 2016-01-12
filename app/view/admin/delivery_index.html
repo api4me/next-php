@@ -1,0 +1,131 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="delivery-list" class="well well-small clearfix">
+    <div>
+        <h3>配送管理</h3>
+    </div>
+    <div class="search bb5">
+        <div class="notice">日期格式为XXXX-XX-XX或者XXXX/XX/XX</div>
+        <form name="form-search" method="post" class="form-inline" action="/admin/delivery/index/">
+            <select name="status" class="span2">
+                {% for k, v in option.status %}
+                <option value="{{k}}"{% if search.status and search.status == k %} selected{% endif %}>{{v}}</option>
+                {% endfor %}
+            </select>
+            <select name="type" class="span2">
+            	<option value="">--配送方式--</option>
+                <option value="1"{% if search.type and search.type == 1 %} selected{% endif %}>物流</option>
+                <option value="2"{% if search.type and search.type == 2 %} selected{% endif %} class="J-type-self">自己</option>
+            </select>
+            <input type="text" name="sn" class="span2" placeholder="单号" value="{{search.sn}}"/>
+            <input type="text" name="consignee" class="span2" placeholder="收货人/下单人ID" value="{{search.consignee}}"/>
+			<input type="date" name="start_date" class="span2" placeholder="预约时间-开始" value="{{search.start_date}}"/>
+			<input type="date" name="end_date" class="span2" placeholder="预约时间-结束" value="{{search.end_date}}"/>
+            <div class="serch-button text-right">
+                <button class="btn btn-primary search">查询</button>
+                <button class="btn btn-success export" name="export" value="1">导出</button>
+            </div>
+        </form>
+    </div>
+    <table class="table table-hover table-mob">
+    <thead>
+        <tr>
+            <th width="3%"><input type="checkbox" name="checkall"></th>
+			<th width="13%">单号</th>
+			<th width="7%">状态</th>
+			<th width="8%">配送方式</th>
+			<th width="5%">箱数</th>
+			<th width="13%">下单人/用户id</th>
+			<th width="7%">收货人</th>
+			<th width="11%">预约送水时间</th>
+			<th width="12%">备注</th>
+            <th class="text-info">{% if count_show %}共有{{data.count}}条{% endif %}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for key, item in data.delivery %}
+        <tr>
+            <td class="center">
+            	{% if search.status =='preship' or search.status =='shipped' %}
+            	<input type="checkbox" name="orderid[]" value="{{item.id}}">
+            	{% endif %}
+           	</td>
+            <td class="center">
+                {{ item.sn }}<br>
+                {% if item.need_pay==1 and item.pay_money>0 and item.status!='cancel'%}
+                <a class="link-order" href="/admin/order/receive/?id={{item.order_id}}" target="_blank">待收款：&yen;{{item.pay_money / 100|number_format(2, '.', ',')}} 元 </a>
+                {% endif %}
+            </td>
+            <td class="center">
+				{% if item.status == 'preship' %}<span class="label label-important">待配送</span>
+				{% elseif item.status == 'shipped' %}<span class="label label-info">配送中</span>
+				{% elseif item.status == 'sign' %}<span class="label label-success">已送达</span>
+				{% elseif item.status == 'finish' %}<span class="label label-success">已完成</span>
+				{% elseif item.status == 'cancel' %}<span class="label">已作废</span>
+				{% endif %}
+            </td>
+            <td class="center">{% if item.type == '1' %}物流{% elseif(item.type==2)%}自己{% else %}——{% endif %}</td>
+            <td class="center">{{ item.num }}</td>
+            <td class="center">{{ item.user_name }}/{{ str_pad(item.user_id,7,'0',STR_PAD_LEFT) }}</td>
+            <td class="center">{{ item.consignee }}</td>
+            <td class="center">{{ item.shipping_time | date('Y-m-d') }}</td>
+            <td class="center" title="{{item.remark}}">
+	            {{ mb_substr(item.remark, 0, 8,'utf-8') }}<button class="btn btn-link btn-small edit-remark" data-id="{{key}}"><i class="icon-edit "></i></button>
+            </td>
+            <td class="center">
+                <div class="btn-group hide">
+                    <button class="btn btn-link btn-small see" data-id="{{key}}"><i class="icon-eye-open"></i> 查看</button>
+	                {% if item.status == 'preship' %}
+	                    <button class="btn btn-link btn-small edit" data-id="{{key}}"><i class="icon-edit"></i> 编辑</button>
+	                    <button class="btn btn-link btn-small cls" data-id="{{key}}" data-order-id="{{item.order_id}}"><i class="icon-remove"></i> 作废</button>
+	                {% elseif item.status == 'shipped' %}
+	                	<button class="btn btn-link btn-small comment" data-id="{{key}}"><i class="icon-edit"></i> 配送结果备注</button>
+                    {% elseif item.status == 'sign' %}
+                    	<button class="btn btn-link btn-small statement" data-id="{{key}}"><i class="icon-ok"></i> 结单</button>
+                    	<button class="btn btn-link btn-small cancle-sign" data-id="{{key}}"><i class="icon-repeat"></i> 取消已送达</button>
+	                {% endif %}
+                </div>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="10"><em> 哎呀， 么有数据，再等一等。</em></td></tr>
+    {% endfor %}
+    	<tr>
+        	<td colspan="10">
+        		{% if search.status =='preship' %}
+	        	<button class="btn btn-primary J-all" action="logistics">物流配送</button>
+	        	<button class="btn J-all" action="self">自己配送</button>
+	        		{% if search.type == 2 and search.status =='preship' %}
+	        		<button class="btn btn-success J-all"  action="ship">配送</button>
+	        		{% endif %}
+        		{% elseif search.status =='shipped' %}
+        		<button class="btn btn-success J-all"  action="sign">已送达</button>
+	        	{% endif %}
+        	</td>
+        </tr>
+    </tbody>
+    </table>
+    {{pagination|raw}}
+    <div id="remarkModal" class="modal hide fade">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>添加备注</h3>
+        </div>
+        <div class="modal-body">
+            加载中...
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary save">保存</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+        </div>
+    </div>
+	<script type="text/template" id="tpl-remark">
+        <div class="form-horizontal">
+            <div class="control-group">
+				<input type="hidden" name="id" value="<%= data.id %>"/>
+                <textarea name="remark"><%= data.remark %></textarea>
+            </div>
+        </div>
+    </script>
+</div>
+{% endblock %}

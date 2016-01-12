@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+define('IN_NEXT', 1);
+
+if (php_sapi_name() != "cli") {
+    die("Access deny");
+}
+
+/*
+* |--------------------------------------------------------------------------
+* | Register The Auto Loader
+* |--------------------------------------------------------------------------
+* |
+* | Composer provides a convenient, automatically generated class loader
+* | for our application. We just need to utilize it! We'll require it
+* | into the script here so that we do not have to worry about the
+* | loading of any our classes "manually". Feels great to relax.
+* |
+* */
+require 'Slim/Slim.php';
+\Slim\Slim::registerAutoloader();
+
+/**
+ * Step 2: Instantiate a Slim application
+ *
+ * This example instantiates a Slim application using
+ * its default settings. However, you will usually configure
+ * your Slim application now by passing an associative array
+ * of setting names and values into the application constructor.
+ */
+require 'config.php';
+$app = new \Slim\Slim($setting);
+// Set config into app container
+foreach ($config as $key => $val) {
+    $app->config($key, $val);
+}
+
+$app->container->singleton("db", function() use ($app) {
+    return new \Next\Helper\Db();
+});
+
+/*
+|--------------------------------------------------------------------------
+| Run The next Application
+|--------------------------------------------------------------------------
+|
+| When we run the console application, the current CLI command will be
+| executed in this console and the response sent back to a terminal
+| or another output device for the developers. Here goes nothing!
+|
+*/
+$command = new \Next\Console\Command();
+$status = $command->run();
+
+exit($status);

@@ -1,0 +1,116 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="product-edit" class="well well-small clearfix">
+    <div>
+        {% if data.id %}
+        <h3>商品编辑: {{data.name}}</h3>
+        {% else %}
+        <h3>新增商品</h3>
+        {% endif %}
+    </div>
+    <div>
+        <div class="text-right"> <em><i class="icon-star-empty"></i> 为必填项</em> </div>
+        <table class="table table-dashed">
+            <tbody>
+                <tr>
+                    <td>商品名称: </td>
+                    <td colspan="5">
+                        <input  name="name" class="span11" value="{{data.name}}" />
+                        <i class="icon-star-empty"></i>
+                    </td>
+                </tr>
+                <tr>
+                    <td>商品编号: </td>
+                    <td>
+                        <input name="sn" value="{{data.sn}}" class="span9"/>
+                        <i class="icon-star-empty"></i>
+                    </td>
+                    <td>现售价格: </td>
+                    <td>
+                        <input name="price" class="span8" value="{{data.price}}"/> 分
+                        <i class="icon-star-empty"></i>
+                    </td>
+                    <td>市场价格: </td>
+                    <td>
+                        <input name="market_price" class="span5" value="{{data.market_price}}" /> 分
+                    </td>
+                </tr>
+                <tr>
+                	<td>箱数: </td>
+                    <td>
+                        <input name="box_num" class="span9" value="{{data.box_num}}" /> 箱
+                        <i class="icon-star-empty"></i>
+                    </td>
+                    <td>赠送积分: </td>
+                    <td>
+                        <input name="integral" class="span3" value="{{data.integral}}" />
+                    </td>
+                    <td>赠送Coupon: </td>
+                    <td>
+                        <input name="coupon" class="span3" value="{{data.coupon}}" /> 个
+                    </td>
+                </tr>
+                <tr>
+                    <td>排序: </td>
+                    <td colspan="5">
+                        <input name="sort" class="span3" value="{{data.sort}}" /> (<em>正整数，数值越小越靠前</em>)
+                    </td>
+                </tr>
+                <tr>
+                    <td>简短描述: </td>
+                    <td colspan="5">
+                        <textarea name="short_desc">{{data.short_desc}}</textarea>
+                        <i class="icon-star-empty"></i>
+                    </td>
+                </tr>
+                <tr>
+                    <td>是否上架: </td>
+                    <td>
+                        <label class="checkbox"><input type="checkbox" name="on_sale" value="1"{% if data.on_sale or not data.id %} checked {% endif %} /> 上架</label>
+                    </td>
+                    <td>体验装: </td>
+                    <td>
+                        <label class="checkbox"><input type="checkbox" name="is_promote" value="1"{% if data.is_promote %} checked {% endif %} /> 是</label>
+                    </td>
+                    <td>是否赠品: </td>
+                    <td>
+                        <label class="checkbox"><input type="checkbox" name="is_gift" value="1"{% if data.is_gift %} checked {% endif %} /> 是</label>
+                    </td>
+                </tr>
+
+                <!-- <tr>
+                    <td>商品图片: </td>
+                    <td colspan="5">
+                        <button class="btn upload" name="upload">上传图片</button> <em>(提示：可以通过拖动更改图片顺序，默认第一张图为列表主图。)</em>
+                        <i class="icon-star-empty"></i>
+                        <ul class="thumbnails pic-preview">
+                        {% set pic = json_decode(data.pic, true) %}
+                        {% for v in pic %}
+                            <li>
+                                <img src="/assets/upload/{{v}}" class="img-polaroid" data-name="{{v}}" />
+                                <span class="hide del"><i class="icon-remove icon-white"></i></span>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </td>
+                </tr> -->
+
+                <tr>
+                    <td>商品详细描述 </td>
+                    <td colspan="5">
+                        <textarea name="desc">{{data.desc}}</textarea>
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    <div class="operate-footer scroll-bottom">
+        <button class="btn btn-primary save">保存</button>
+        <button class="btn back">返回</button>
+        <input type="hidden" name="id" value="{{data.id}}" />
+    </div>
+
+    </div>
+
+</div>
+{% endblock %}

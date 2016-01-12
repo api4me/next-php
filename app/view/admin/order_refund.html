@@ -1,0 +1,152 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="order-refund" class="well well-small clearfix">
+<input type="hidden" name="id" value="{{data.id}}" />
+<input type="hidden" name="user_id" value="{{data.user_id}}" />
+<input type="hidden" name="goods_residue" value="{{data.goods_residue}}" />
+    <div>
+        <h3>订单退款</h3>
+    </div>
+    <div>
+        <table class="table table-dashed">
+            <tbody>
+                <tr>
+                    <td width="10%">订单编号: </td>
+                    <td width="23%">{{data.sn}}</td>
+                    <td width="10%">下单人: </td>
+                    <td width="23%">{{ data.user_name }}</td>
+                    <td width="10%">下单时间: </td>
+                    <td>{{data.created | date ('Y-m-d H:i')}}</td>
+                </tr>
+                <tr>
+                	<td>订单状态: </td>
+                    <td><span class="star">{{ data.status }}</span></td>
+                    <td>订单总额: </td>
+                    <td><span class="star">¥ {{data.need_pay / 100|number_format(2, '.', ',')}} 元</span></td>
+                    <td>实际付款: </td>
+                    <td><span class="star">¥ {{data.total_fee / 100|number_format(2, '.', ',')}} 元</span></td>
+                </tr>
+                <tr>
+                    <td>使用积分: </td>
+                    <td>
+                        {{data.use_integral}} ( 抵：<span class="star">¥ {{data.use_integral | number_format(2, '.', ',')}} 元</span> )
+                    </td>
+                    <td>支付方式: </td>
+                    <td colspan="3">{{data.pay_name}}</td>
+                <tr>
+                	<td>订单总水量: </td>
+                    <td>{{data.goods_num}} 箱</td>
+					<td>剩余水量: </td>
+                    <td colspan="3">{{data.goods_residue}} 箱</td>
+                </tr>
+                <tr>
+                    <td>客户留言: </td>
+                    <td colspan="5">
+                        <div class="remark-show">
+                            <span>{{data.message}}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>发票抬头: </td>
+                    <td colspan="5">
+                        <div class="remark-show">
+                            <span>{{data.invoice}}</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>退款原因: </td>
+                    <td colspan="5">{{data.refund_reason}}</td>
+                </tr>
+                <tr>
+                    <td>联系人: </td>
+                    <td>{{data.refund_info.name}}</td>
+                    <td>联系电话: </td>
+                    <td>{{data.refund_info.mobile}}</td>
+                    <td>持卡人姓名: </td>
+                    <td>{{data.refund_info.card_name}}</td>
+                </tr>
+                <tr>
+                    <td>卡号: </td>
+                    <td>{{data.refund_info.card_num}}</td>
+                    <td>开户行: </td>
+                    <td>{{data.refund_info.card_bank}}</td>
+                    <td>发票编号: </td>
+                    <td>{{data.refund_invoice}}</td>
+                </tr>
+                <tr>
+                    <td>备注: </td>
+                    <td colspan="5">
+                    	<div class="remark-show">
+                    		<span>{{data.remark}}</span>
+                    		<button class="btn btn-link edit" title="修改"><i class="icon-edit"></i></button>
+                    	</div>
+                    	<div class="remark-edit hide">
+	                    	<textarea name="remark">{{data.remark}}</textarea>
+	                    	<div class="text-right span11">
+	                    		<button class="btn btn-primary remark-save">保存</button>
+	                    		<button class="btn cancel">取消</button>
+	                    	</div>
+                    	</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>商品名称</th>
+                                    <th>商品价格</th>
+                                    <th>商品数量</th>
+                                    <th>总箱数</th>
+                                    <th>剩余箱数</th>
+                                    <th>可退金额</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% set refund_money = 0 %}
+                            	{% for val in data.detail %}
+                            	{% set refund_money = refund_money + val.goods_residue * val.unin_price / 100 %}
+                                    <tr>
+                                        <td class="center">{{val.goods_name}}</td>
+                                        <td class="center">&yen;{{ val.unin_price * val.box_num / 100 | number_format(2, '.', ',') }} 元</td>
+                                        <td class="center">{{ val.goods_num }}</td>
+                                        <td class="center">{{ val.goods_num * val.box_num }}</td>
+                                        <td class="center star">{{ val.goods_residue }}</td>
+                                        <td class="center star">&yen;{{ val.goods_residue * val.unin_price / 100 | number_format(2, '.', ',') }} 元</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                {% if refund_money - data.use_integral > data.total_fee/100 %}
+              		{% set refund_money = data.total_fee / 100 %}
+              	{%endif%}
+                <tr>
+                	<td>可退金额：</td>
+                	<td colspan="2"><span class="star">&yen; {{ refund_money - data.use_integral | number_format(2, '.', ',') }} 元</span></td>
+                	<td colspan="4">
+                		退款：
+	                	<input name="refund_amount" value="{% if data.refund_amount > 0 %}{{data.refund_amount/100}}{%else%}{{refund_money}}{%endif%}" data-amount="{{ data.refund_amount/100 }}" class="span3"/> 元
+	                	<button class="btn reject">驳回</button>
+	                	{% if not data.refund_amount %}
+	                	<button class="btn btn-danger reply">提交退款信息</button>
+	                	{% else %}
+	                		{% if not data.refund_history %}
+		                	<button class="btn btn-warning change-reply">修改退款金额</button>
+		                	{%endif%}
+	                	{%endif%}
+               		</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="operate-footer scroll-bottom">
+            <button class="btn back">返回</button>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

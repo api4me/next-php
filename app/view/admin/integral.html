@@ -1,0 +1,33 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="integral-list" class="well well-small clearfix">
+    <div>
+        <h3>用户积分获取详情</h3>
+    </div>
+    <table class="table table-striped">
+    <thead>
+        <tr>
+            <th width="5%">#</th>
+            <th width="10%">数量</th>
+            <th>明细</th>
+            <th width="15%">时间</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for v in data %}
+        <tr>
+            <td class="center">{{loop.index}}</td>
+            <td class="center">{{v.num}}</td>
+            <td class="center">{{v.remark}}</td>
+            <td class="center">{{v.created | date ('Y-m-d H:i')}}</td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7"><em> 木有积分记录呢。</em></td></tr>
+    {% endfor %}
+    </tbody>
+    </table>
+    <div class="operate-footer scroll-bottom">
+		<button class="btn back" uid="{{uid}}">返回</button>
+	</div>
+</div>
+{% endblock %}

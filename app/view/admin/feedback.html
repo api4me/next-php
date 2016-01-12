@@ -1,0 +1,40 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="feedback-list" class="well well-small clearfix">
+    <div>
+        <h3>用户留言查看</h3>
+    </div>
+    <table class="table table-hover table-mob">
+    <thead>
+        <tr>
+            <th width="5%"><input type="checkbox" name="checkall" /></th>
+            <th width="15%">用户名</th>
+            <th width="15%">联系信息</th>
+            <th width="55%">反馈内容</th>
+            <th class="text-info">共有{{data.count}}条</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for key, item in data.feedback %}
+        <tr>
+            <td class="center"><input type="checkbox" name="feedback_id[]" value="{{item.id}}"></td>
+            <td class="center">{{item.name}}<br><em>{{item.created | date ('Y/m/d') }}</em></td>
+            <td class="center">{{item.contacts}}<br>(Tel: {{item.mobile}})</td>
+            <td class="feedback-content">{{ item.content }}</td>
+            <td class="center">
+                <div class="btn-group hide">
+                   	<button class="btn btn-link btn-small delete" data-id="{{item.id}}"><i class="icon-remove"></i>删除</button>
+                </div>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="5"><em> 木有留言呢。</em></td></tr>
+    {% endfor %}
+    <tr>
+    	<td colspan="5"><button class="btn btn-danger delete-all">删除</button></td>
+    </tr>
+    </tbody>
+    </table>
+	{{pagination|raw}}
+</div>
+{% endblock %}

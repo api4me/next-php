@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Home - {{data.site}}</title>
+    <link href="{{"{{"}}common.config.domain{{"}}"}}assets/style/bootstrap.min.css" rel="stylesheet">
+    <link href="{{"{{"}}common.config.domain{{"}}"}}assets/style/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="{{"{{"}}common.config.domain{{"}}"}}assets/style/all.css" rel="stylesheet">
+    <link href="{{"{{"}}common.config.domain{{"}}"}}assets/style/select2.css" rel="stylesheet">
+    <link href="{{"{{"}}common.config.domain{{"}}"}}assets/style/bootstrap-switch.css" rel="stylesheet">
+    <link href="{{"{{"}}common.config.domain{{"}}"}}assets/webuploader/webuploader.css" rel="stylesheet">
+    <script type="text/javascript" src="{{"{{"}}common.config.domain{{"}}"}}assets/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="{{"{{"}}common.config.domain{{"}}"}}assets/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{"{{"}}common.config.domain{{"}}"}}assets/js/main.js"></script>
+    <script type="text/javascript" src="{{"{{"}}common.config.domain{{"}}"}}assets/js/select2.min.js"></script>
+    <script type="text/javascript" src="{{"{{"}}common.config.domain{{"}}"}}assets/js/bootstrap-switch.js"></script>
+    <script type="text/javascript" src="{{"{{"}}common.config.domain{{"}}"}}assets/js/lib/underscore-min.js"></script>
+</head>
+<body>
+<div class="frame_menu">
+    <div class="thelogo">
+        <img src="{{"{{"}}common.config.domain{{"}}"}}assets/images/logo.png">
+    </div>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default no_sub menu_home">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="collapsed{{"{%"}} if common.uri == '/{{data.module}}/' {{"%}"}} current{{"{%"}} endif {{"%}"}}" href="/{{data.module}}/">Home</a>
+                </h4>
+            </div>
+        </div>
+        <div class="panel panel-default menu_campaigns">
+            <div class="panel-heading" role="tab" id="headingTwo">
+                <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion"
+                        href="#menu_{{data.module}}" aria-expanded="false" aria-controls="collapseTwo">
+                       {{data.module}}
+                    </a>
+                </h4>
+            </div>
+            <div id="menu_{{data.module}}" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingTwo">
+                <ul>
+                    <li class="icon_sbfl"><a {{"{%"}} if strpos(common.uri, '/{{data.module}}/{{data.control}}/') is same as(0) {{"%}"}} class="current"{{"{%"}} endif {{"%}"}} href="/{{data.module}}/{{data.control}}/">{{data.control}}</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="frame_top">
+    <ul class="right_links">
+        <li><a href="#" class="user_link"><span>{{common.user.store.short_name}}</span></a>
+            <ul class="sub_links">
+                <li><a href="/shop/profile/">Your Account</a></li>
+                <li><a href="/shop/logout/">Sign Out</a></li>
+            </ul>
+        </li>
+    </ul>
+    {{"{%"}} block nav {{"%}"}}
+    <h3>Home</h3>
+    {{"{%"}} endblock {{"%}"}}
+</div>
+<div class="frame_main">
+    {{"{%"}} block main {{"%}"}}
+    {{"{%"}} endblock {{"%}"}}
+</div>
+
+{{"{%"}} block script {{"%}"}}
+{{"{%"}} endblock {{"%}"}}
+
+</body>
+</html>

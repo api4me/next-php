@@ -1,0 +1,43 @@
+<?php
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
+/**
+* @filename {{data.model}}.php
+* @touch date {{data.date}} 
+* @author: Fred<fred.zhou@foxmail.com>
+* @license: http://www.zend.com/license/3_0.txt PHP License 3.0"
+* @version 1.0.0
+*/
+namespace app\model;
+
+class {{data.model}} extends \Next\Core\Model {
+
+{{"/*{{{ loadAll */"}}
+    public function loadAll() {
+        $q = "SELECT * FROM {{data.table}};";
+        $query = $this->db->prepare($q);
+        $query->execute();
+        return $query->fetchAll(\PDO::FETCH_ASSOC);
+    }
+{{"/*}}}*/"}}
+{{"/*{{{ loadById */"}}
+    public function loadById($id) {
+        $q = "SELECT * FROM {{data.table}} WHERE id=:id;";
+        $query = $this->db->prepare($q);
+        $query->bindParam(":id", $id);
+        $query->execute();
+        return $query->fetch(\PDO::FETCH_ASSOC);
+    }
+/*}}}*/
+{{"/*{{{ add */"}}
+    public function add($a) {
+        return $this->execute("{{data.table}}", "add", $a);
+    }
+/*}}}*/
+{{"/*{{{ update */"}}
+    public function update($u, $w) {
+        return $this->execute("{{data.table}}", "up", $u, $w);
+    }
+{{"/*}}}*/"}}
+
+}

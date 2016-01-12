@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Next Demo</title>
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta content="telephone=no" name="format-detection" />
+        <link href="/assets/next/css/next.css" rel="stylesheet">
+    </head>
+    <body>
+        {% block nav %}
+        {% endblock %}
+        <div class="content" id="content">
+            {% block data  %}
+            {% endblock %}
+        </div>
+        
+        {% block js %}
+        <script src="/assets/js/lib/require.js" data-main="/assets/js/dist/product.js?v=1.1"></script>
+        <div class="loading" style="display: none;">
+            <div class="loading-run">
+                <div class="rond">
+                    <div class="small-rond"></div>
+                </div>
+                <div class="loading-text">Loading</div>
+            </div>
+            <div class="loading-bg"></div>
+        </div>
+
+        <div class="wxshare" style="display: none;">
+            <div class="wxshare-img"></div>
+            <div class="wxshare-text"></div>
+        </div>
+        {% endblock %}
+     </body>
+</html>

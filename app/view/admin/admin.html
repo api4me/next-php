@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="utf-8">
+    <head>
+        <meta charset="utf-8">
+        <title>尔冬吉微信商城管理系统</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link href="/assets/bootstrap/v2/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/assets/css/admin.css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="content" class="container-fluid">
+            {% block navbar %}
+            <div class="navbar navbar-inverse navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <div class="nav-collapse collapse">
+                            <a class="brand" href="/admin/delivery/" title="首页"><i class="icon-home icon-white"></i> &nbsp;</a>    
+                            <ul class="nav">
+                                <li><a href="#/">微信 | 尔冬吉微商城</a></li>
+                            </ul>
+                            <ul class="nav pull-right">
+                                <li><a href="/login/out/" title="退出" alt="退出"><i class="icon-off icon-white"></i> &nbsp;</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+            <!-- nav -->
+
+            <div class="layout-page row-fluid">
+                <div class="layout-side span2">
+                    {% block menu %}
+                    <div class="sidebar-menu">
+                    <!--
+                        <a href="#setting" class="nav-header menu-first" data-toggle="collapse"><i class="icon-book icon-large"></i>公众号管理</a>
+                        <ul id="setting" class="nav nav-list menu-second">
+                            <li><a href="/admin/greeting/"><i class="icon-bookmark"></i>首次关注回复</a></li>
+                            <li><a href="/admin/autoreply/"><i class="icon-comment"></i>自动回复</a></li>
+                            <li><a href="/admin/menu/"><i class="icon-th-list"></i>自定义菜单</a></li>
+                        </ul>
+                    -->
+                        <a href="#weshopMenu" class="nav-header menu-first collapsed" data-toggle="collapse"><i class="icon-book icon-large"></i>微商城管理</a>
+                        <ul id="weshopMenu" class="nav nav-list menu-second">
+                        	<li><a href="/admin/article/"><i class="icon-list-alt"></i>文章</a></li>
+                            <li><a href="/admin/product/"><i class="icon-tint"></i>商品</a></li>
+                            <li><a href="/admin/order/"><i class="icon-download"></i>订单</a></li>
+                            <li><a href="/admin/delivery/"><i class="icon-road"></i>配送</a></li>
+                            <li><a href="/admin/user/"><i class="icon-user"></i>用户</a></li>
+                            <li><a href="/admin/feedback/"><i class="icon-envelope"></i>留言</a></li>
+                            <li><a href="https://mp.weixin.qq.com/" target="_blank"><i class="icon-tasks"></i>数据分析</a></li>
+                            <li><a href="/admin/shiptime/"><i class="icon-time"></i>送水时间限制</a></li>
+                            <li><a href="/admin/activity/"><i class="icon-gift"></i>分享券活动</a></li>
+                            <li><a href="/admin/gift/"><i class="icon-gift"></i>礼品券活动</a></li>
+                            <li><a href="/admin/gift/delivery/"><i class="icon-gift"></i>礼品发放</a><span class="remind hide">·</span></li>
+                            <li><a href="/admin/statistics/"><i class="icon-list"></i>统计</a></li>
+                            <!--<li><a href="/admin/awards/"><i class="icon-gift"></i>抽奖管理</a></li>-->
+                        </ul>
+                    </div>
+                    {% endblock %}
+                </div>
+
+                <div class="layout-main well span10" id="data">
+                {% block data %}
+                {% endblock %}
+                </div>
+            </div>
+            <!-- container -->
+        </div>
+        <!-- content -->
+
+        <footer class="footer">
+            <div class="container">
+                <p>
+                &copy;{{ date('Y') }} 尔冬吉微商城
+                </p>
+            </div>
+        </footer>
+        <!--[if lt IE 9]>
+        <script src="/assets/js/lib/html5shiv.js"></script>
+        <![endif]-->
+        <script src="/assets/js/lib/require.js" data-main="/assets/js/admin"></script>
+     </body>
+</html>

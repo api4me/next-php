@@ -1,0 +1,67 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="gift-edit" class="well well-small clearfix">
+    <div><h3>礼品券活动{% if data %}编辑{% else %}新增{% endif %}</h3></div>
+    <div>
+        <table class="table table-dashed">
+            <tbody>
+                <tr>
+                    <td>活动名称: </td>
+                    <td colspan="3"><input type="text" name="title" value="{{data.title}}" class="span10"/><i class="icon-star-empty"></i></td>
+                </tr>
+                <tr>
+                    <td>活动LOGO: </td>
+                    <td colspan="3">
+                        <button class="btn upload" name="upload">上传图片</button>
+                        <i class="icon-star-empty"></i>
+                        <em>（图片建议尺寸：120像素 * 85像素 ）</em>
+                        <div class="pic-preview">
+                            <img src="/assets/upload/{{data.logo}}" class="img-polaroid" data-name="{{data.logo}}" />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="12%">礼品描述：</td>
+                    <td width="40%"><input type="text" name="gift" value="{{data.gift}}" {% if data.status=='executed' %}readonly{% endif %}/><i class="icon-star-empty"></i></td>
+                    <td width="12%">礼券数量：</td>
+                    <td><input type="text" name="num" value="{{data.num}}"  {% if data.status=='executed' %}readonly{% endif %}/><i class="icon-star-empty"></i></td>
+                </tr>
+                <tr>
+                    <td>兑换开始时间：</td>
+                    <td>
+                        <input type="text" name="start_time" placeholder="XXXX-XX-XX" value="{% if data.start_time %}{{date('Y-m-d',strtotime(data.start_time))}}{% endif %}" {% if data.status=='executed' %}readonly{% endif %}/>
+                        <i class="icon-star-empty"></i>
+                    </td>
+                    <td>兑换结束时间：</td>
+                    <td>
+                        <input type="text" name="end_time" placeholder="XXXX-XX-XX" value="{% if data.end_time %}{{date('Y-m-d',strtotime(data.end_time))}}{% endif %}" {% if data.status=='executed' %}readonly{% endif %}/>
+                        <i class="icon-star-empty"></i>
+                    </td>
+                </tr>
+                <tr>
+                    <td>简短描述：</td>
+                    <td colspan="3">
+                        <em>（建议文字数量在 25 字之内）</em>
+                        <textarea name="short_desc">{{data.short_desc}}</textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>活动详情：</td>
+                    <td colspan="3">
+                        <em>（大图片建议尺寸：900像素 * 500像素）</em>
+                        <textarea name="details" rows=30>{{data.details|raw}}</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="operate-footer scroll-bottom">
+        <input type="hidden" name="id" value="{{data.id}}" />
+        <button class="btn btn-primary save">保存</button>
+        {% if data.status=='draft' %}
+        <button class="btn btn-danger perform" data-id="{{data.id}}" data-num="{{data.num}}">执行</button>
+        {% endif %}
+        <button class="btn back">返回</button>
+    </div>  
+</div>
+{% endblock %}

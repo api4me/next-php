@@ -1,0 +1,30 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#beadded" data-toggle="tab">被添加自动回复</a></li>
+        <li><a href="#auto" data-toggle="tab">消息自动回复</a></li>
+        <li><a href="#smart" data-toggle="tab">关键词自动回复</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane active" id="beadded">
+            <div class="control-group">
+               <div class="controls">
+                    <textarea id="inputText" name="content" rows="4"><%= data.content %></textarea>
+                </div>
+            </div>
+            <div class="control-group">
+                <button class="btn del">删除</button>
+                <button class="btn btn-primary save">保存</button>
+            </div>
+        </div>
+        <div class="tab-pane" id="auto">
+            开发中...
+        </div>
+        <div class="tab-pane" id="smart">
+            开发中...
+        </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="user-list" class="well well-small clearfix">
+    <div>
+        <h3>用户管理</h3>
+    </div>
+    <div class="search bb5">
+        <form name="form-search" method="post" class="form-inline" action="/admin/user/index/">
+            <select name="status" class="span2">
+            	<option value="1">正常用户</option>
+                <option value="2" {% if search.status == '2' %}selected{% endif %}>黑名单</option>
+            </select>
+            <select name="type" class="span2">
+            	<option value="">---用户类型---</option>
+            	<option value="0" {% if search.type == '0' %}selected{% endif %}>关注好友</option>
+            	<option value="1" {% if search.type == 1 %}selected{% endif %}>体验好友</option>
+                <option value="2" {% if search.type == 2 %}selected{% endif %}>会员</option>
+                <option value="3" {% if search.type == 3 %}selected{% endif %}>创始会员</option>
+                <option value="-1" {% if search.type == '-1' %}selected{% endif %}>其他</option>
+            </select>
+            <input type="text" name="name" class="span2" placeholder="备注名/用户名/编号" value="{{search.name}}"/>
+			<input name="integral" class="span2" placeholder="积分>=" value="{{search.integral}}"/>
+			<input name="have_water" class="span2" placeholder="持水量>=" value="{{search.have_water}}"/>
+            <div class="serch-button text-right">
+                <button class="btn btn-primary search">查询</button>
+            </div>
+        </form>
+    </div>
+    <table class="table table-hover table-mob">
+    <thead>
+        <tr>
+            <th width="10%">编号</th>
+            <th width="15%">用户名</th>
+            <th width="10%">类型</th>
+            <th width="10%">积分</th>
+            <th width="10%">持水量</th>
+            <th width="10%">赠券</th>
+            <th class="text-info">{% if count_show %}共有{{data.count}}条{% endif %}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for key, item in data.user %}
+        <tr>
+            <td class="center">{{str_pad(item.id,7,'0',STR_PAD_LEFT)}}</td>
+            <td class="center">{{item.nickname | default(item.name)}}</td>
+            <td class="center">
+            	{% if item.type==0 %} 关注好友
+            	{% elseif item.type==1 %} 体验好友
+            	{% elseif item.type==2 %} 会员
+            	{% elseif item.type==3 %} 创始会员
+            	{% endif %}
+           	</td>
+            <!-- <td class="center">{{item.mobile}}</td> -->
+            <td class="center">{{item.integral}}</td>
+            <td class="center">{{item.have_water}} 箱</td>
+            <td class="center">{{item.coupon}}</td>
+            <td class="center">
+                <div class="btn-group hide">
+                    <button class="btn btn-link btn-small see" data-id="{{key}}"><i class="icon-eye-open"></i> 查看</button>
+                    {% if item.status==1 %}
+                    	{% if item.type!=3 %}
+                    	<button class="btn btn-link btn-small level-up" data-id="{{key}}"><i class="icon-star"></i> 升级为创始会员</button>
+                    	{% else %}
+                    	<button class="btn btn-link btn-small level-down" data-id="{{key}}"><i class="icon-star-empty"></i> 降为普通会员</button>
+                    	{% endif %}
+                   	<button class="btn btn-link btn-small black-list" data-id="{{key}}"><i class="icon-remove"></i>拉入黑名单</button>
+                    {% elseif item.status==2 %}
+                    <button class="btn btn-link btn-small white-list" data-id="{{key}}"><i class="icon-repeat"></i>移出黑名单</button>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+    {% else %}
+        <tr><td colspan="7"><em> 木有用户呢。</em></td></tr>
+    {% endfor %}
+    </tbody>
+    </table>
+	{{pagination|raw}}
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="activity-edit" class="well well-small clearfix">
+    <div><h3>分享券活动设置</h3></div>
+    <div>
+	    <table class="table table-dashed">
+	        <tbody>
+	            <tr>
+	                <td>活动名称: </td>
+	                <td colspan="3">{{data.title}}</td>
+	            </tr>
+	            <tr>
+	                <td width="10%">赠送的券数：</td>
+	                <td width="40%">{{data.num}} 张</td>
+                    <td width="10%">截止日期：</td>
+                    <td>{{date('Y-m-d',strtotime(data.end_time))}}</td>
+	            </tr>
+                <tr>
+                    <td width="10%">已参加会员：</td>
+                    <td colspan="3">
+                        <ul class="inline">
+                            {% for val in users %}
+                                <li class="J-have-user-{{val.id}} activity-user-li">
+                                    {{val.user_name}}
+                                    {% if val.get_coupon==1 %}
+                                    <i class="icon-bookmark"></i>
+                                    {% else %}
+                                    <button class="btn btn-link remove-user" data-id="{{val.id}}" title="去掉此人"><i class="icon-remove"></i></button>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="muted" colspan="4">
+                        Tips:<br/>
+                        1.带有‘<i class="icon-bookmark"></i>’标志的客户为已获取赠券的用户，此类客户不可进行删除操作！<br/>
+                        2.已经加入活动的会员不会被再次查询出来。<br/>
+                        3.用户显示规则为：有备注的首先显示备注名，没有备注的显示用户名。<br/>
+                        4.<span class="text-error">请先将选择的用户添加至活动，再点击执行。</span><br/>
+                        5.<span class="text-error">活动参与会员过多时，建议分批次添加</span><br/>
+                    </td>
+                </tr>
+	        </tbody>
+	    </table>
+        <div class="search bb5 form-inline">
+            <select name="type" class="span2">
+                <option value="">---用户类型---</option>
+                <option value="0" {% if search.type == '0' %}selected{% endif %}>关注好友</option>
+                <option value="1" {% if search.type == 1 %}selected{% endif %}>体验好友</option>
+                <option value="2" {% if search.type == 2 %}selected{% endif %}>会员</option>
+                <option value="3" {% if search.type == 3 %}selected{% endif %}>创始会员</option>
+            </select>
+            <input type="text" name="name" class="span2" placeholder="备注名/用户名/编号" value=""/>
+            <button class="btn btn-primary search">查询</button>
+        </div>
+        <div class="row-fluid show-grid user-show-body">
+            <div class="span6 user-show">
+                <h5 class="text-center">选择参加活动的用户</h5>
+                <ul class="inline J-all-user-show"></ul>
+            </div>
+            <div class="span6 user-show">
+                 <h5 class="text-center">已选择的用户(<span class="J-selected-user-num"></span>人)</h5>
+                <ul class="inline J-selected-user-show"></ul>
+            </div>
+        </div>
+	    <div class="operate-footer scroll-bottom">
+	        <input type="hidden" name="id" value="{{data.id}}" />
+            <button class="btn btn-primary save">将选择地用户添加至活动</button>
+            <button class="btn btn-danger perform">执行</button>
+            <button class="btn back">返回</button>
+	    </div>
+    </div>
+    <script type="text/template" id="tpl-user-li">
+        <% _.each(data, function(item) { %>
+        <li>
+            <button class="btn btn-link clearfix J-adduser-select J-<%= item.id%>" data-id="<%= item.id%>"><%= item.nickname.length>0?item.nickname:item.name %>  <i class="icon-arrow-right pull-right J-adduser-i"></i></button>
+        </li>
+        <% }); %>
+    </script>
+</div>
+{% endblock %}

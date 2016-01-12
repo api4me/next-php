@@ -1,0 +1,35 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="shiptime-edit" class="well well-small clearfix">
+    <div><h3>送水限制时间----{% if data.id>0 %}编辑{% else %}添加{% endif %}</h3></div>
+    <div>
+	    <table class="table table-dashed">
+	        <tbody>
+	            <tr>
+	                <td colspan="2">
+	                    ps:日期格式：XXXX-XX-XX ,添加限制时间时可以一次添加多条,中间以','隔开。列如2014-07-20,2014-07-21
+                    </td>
+                </tr>
+	            <tr>
+	                <td width="10%">送水时间: </td>
+	                <td>
+	                    <input name="except_date" class="span11" value="{% if data.except_date %}{{ data.except_date | date('Y-m-d')}}{% endif %}" />
+	                    <i class="icon-star-empty"></i>
+	                </td>
+	            </tr>
+	            <tr>
+	                <td>备注： </td>
+	                <td>
+	                    <textarea name="remark">{{data.remark}}</textarea>
+	                </td>
+	            </tr>
+	        </tbody>
+	    </table>
+	    <div class="operate-footer scroll-bottom">
+	        <input type="hidden" name="id" value="{{data.id}}" />
+            <button class="btn btn-primary save">保存</button>
+            <button class="btn back">返回</button>
+	    </div>
+    </div>
+</div>
+{% endblock %}

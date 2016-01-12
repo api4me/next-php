@@ -1,0 +1,70 @@
+{% extends 'admin/admin.html' %}
+{% block data %}
+<div id="gift-see" class="well well-small clearfix">
+    <div><h3>礼品券活动查看</h3></div>
+    <div>
+        <table class="table table-dashed">
+            <tbody>
+                <tr>
+                    <td>活动名称: </td>
+                    <td>{{data.title}}</td>
+                </tr>
+                <tr>
+                    <td>活动logo: </td>
+                    <td colspan="3">
+                        <ul class="thumbnails pic-preview">
+                        {% set pic = json_decode(data.logo, true) %}
+                        {% for v in pic %}
+                            <li>
+                                <img src="/assets/upload/{{v}}" class="img-polaroid" data-name="{{v}}" />
+                                <span class="hide del"><i class="icon-remove icon-white"></i></span>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="12%">礼品描述：</td>
+                    <td width="40%">{{data.gift}}</td>
+                    <td width="12%">礼券数量：</td>
+                    <td>{{data.num}} 张</td>
+                </tr>
+                <tr>
+                    <td>兑换开始时间：</td>
+                    <td>{{date('Y-m-d',strtotime(data.start_time))}}</td>
+                    <td>兑换结束时间：</td>
+                    <td>{{date('Y-m-d',strtotime(data.end_time))}}</td>
+                </tr>
+                <tr>
+                    <td>简短描述： </td>
+                    <td colspan="3">{{data.short_desc}}</td>
+                </tr>
+                <tr>
+                    <td>活动详情：</td>
+                    <td colspan="3">{{data.details|raw}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="gift-serial">
+        <h5>礼品码领取详情：</h5>
+        <ul class="inline">
+            {% for v in serials %}
+                <li>
+                    <span class="span1">#{{loop.index}}</span>
+                    <span class="span4">礼品码：{{v.serial}}</span>
+                    {% if v.user_id>0 %}
+                    <span class="span4">领取人：<a href="/admin/user/see/?id={{v.user_id}}"  title="查看用户明细" >{{v.user_name}}(ID: {{str_pad(v.user_id, 7, '0', STR_PAD_LEFT)}})</a></span>
+                    <span class="span3">兑换时间：{{date('Y-m-d',strtotime(v.change_time))}}</span>
+                    {% else %}
+                    <span class="span3">未领取</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="operate-footer scroll-bottom">
+        <button class="btn back">返回</button>
+    </div>  
+</div>
+{% endblock %}
