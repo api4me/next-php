@@ -1,0 +1,41 @@
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
+
+/**
+* @filename {{data.file}}
+* @touch date {{data.date}} 
+* @author: Next<fred@api4.me>
+* @version 1.0.0
+*/
+package {{data.package}};
+
+import java.util.ArrayList;
+import java.util.List;
+
+{% for key, val in data.data %}
+public class {{val.class}} {
+{% set f = val.var %}
+{% for v in f %}
+    private {{v.type|raw}} {{v.name}};
+{% endfor %}
+
+    public {{val.class}}() {
+        super();
+    }
+    public {{val.class}}({% for v in f %}{% if count(f) > 0 and not loop.first %}, {% endif %}{{v.type|raw}} {{v.name}}{% endfor %}) {
+        super();
+{% for v in f %}
+        this.{{v.name}} = {{v.name}};
+{% endfor %}
+    }
+
+{% for v in f %}
+    public void set{{ucfirst(v.name)}}({{v.type|raw}} {{v.name}}) {
+        this.{{v.name}} = {{v.name}};
+    }
+    public {{v.type|raw}} get{{ucfirst(v.name)}}() {
+        return this.{{v.name}};
+    }
+{% endfor %}
+}
+
+{% endfor %}

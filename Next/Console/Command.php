@@ -31,6 +31,7 @@ class Command {
             "app:m" => "Model",
             "app:v" => "View",
             "app:c" => "Control",
+            "app:x" => "Code",
         );
         if (!array_key_exists($cmd, $cmdArr)) {
             $cmd = "app";
@@ -60,6 +61,7 @@ The commands are:
     app:m          create model 
     app:v          create view 
     app:c          create control 
+    app:x          create code 
 
 Sample:
     na app --app=shop --control=home --model=user --view=index,edit --table=buz_user
@@ -67,6 +69,8 @@ Sample:
     na app:c -a=shop -c=home -m=user -v=index,edit -t=buz_user
     na app:m -m=user -t=buz_user
     na app:v -a=shop -c=home -v=index,edit -t=buz_user
+
+    na app:x -u=http://x.api4.me -t=java -n=UserVo
 
 
 EOF;
