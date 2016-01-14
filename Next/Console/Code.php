@@ -38,6 +38,7 @@ class Code{
         $out["data"] = array(
             "date" => date("D d M Y H:i:s A T"),
             "file" => $f,
+            "url" => $u,
             "package" => $this->option["p"],
             "data" => $this->x($n, $data),
         ); 
@@ -93,8 +94,9 @@ class Code{
                 }
                 $out = array_merge($out, $this->parse($cls, $val));
                 $var[] = sprintf("%s=%sVo", $key, $cls);
+            } else {
+                $var[] = sprintf("%s=%s", $key, "String");
             }
-            $var[] = sprintf("%s=%s", $key, "String");
         }
         $out[] = sprintf("class:%sVo;var:%s", $name, implode("&", $var));
 
