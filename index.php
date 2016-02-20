@@ -63,6 +63,12 @@ if (isset($config['auto'])) {
 // GET route
 $route = function($app) {
     $url = trim(urldecode($app->request->getResourceUri()), " \t\n\r\0\x0B//");
+
+    // Site default
+    if ($url && $config["route"]["default"]) {
+        $url = $config["route"]["default"];
+    }
+
     $uris = explode('/', $url);
     $dir = array_shift($uris);
     if ($dir == '~') {
@@ -74,7 +80,6 @@ $route = function($app) {
 
         return;
     }
-
 
     $dir = strtolower(preg_replace('/[^a-zA-Z]/', '', $dir));
     if ($dir == '') {
@@ -110,7 +115,7 @@ $route = function($app) {
                 $action = str_replace('-', '', $action);
                 if (!method_exists($obj, '__call') && !method_exists($obj, $action)) {
                     if ($app->config('debug')) {
-                        throw new RuntimeException(sprintf('There is not %s method in app/control/%s/%s.php file.', $dir, $action, $control));
+                        throw new RuntimeException(sprintf('There is not %s method in app/control/%s/%s.php file.', $action, $dir, $control));
                     } else {
                         $app->notFound();
                     }
