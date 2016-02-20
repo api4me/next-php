@@ -65,8 +65,9 @@ $route = function($app) {
     $url = trim(urldecode($app->request->getResourceUri()), " \t\n\r\0\x0B//");
 
     // Site default
-    if ($url && $config["route"]["default"]) {
-        $url = $config["route"]["default"];
+    $r = $app->config("route");
+    if (!$url && $r["default"]) {
+        $url = $r["default"];
     }
 
     $uris = explode('/', $url);
