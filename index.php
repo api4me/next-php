@@ -63,13 +63,6 @@ if (isset($config['auto'])) {
 // GET route
 $route = function($app) {
     $url = trim(urldecode($app->request->getResourceUri()), " \t\n\r\0\x0B//");
-
-    // Site default
-    $r = $app->config("route");
-    if (!$url && $r["default"]) {
-        $url = $r["default"];
-    }
-
     $uris = explode('/', $url);
     $dir = array_shift($uris);
     if ($dir == '~') {
@@ -82,12 +75,20 @@ $route = function($app) {
         return;
     }
 
-    $dir = strtolower(preg_replace('/[^a-zA-Z]/', '', $dir));
     if ($dir == '') {
-        $dir = 'home';
+        // Site default
+        $r = $app->config("route");
+        if ($r["module"]) {
+            $dir = $r["module"];
+            $patten = '/';
+        }
     }
+
+    $dir = strtolower(preg_replace('/[^a-zA-Z]/', '', $dir));
     if (is_dir(sprintf('app/control/%s', $dir))) {
-        $patten = sprintf('/%s/(:name+)', $dir);
+        if (!$patten) {
+            $patten = sprintf('/%s/(:name+)', $dir);
+        }
 
         // Set auth
         require('app/control/auth.php');

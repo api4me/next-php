@@ -128,7 +128,7 @@ $config['auto']['hook'] = array();
 | URI requests to specific module
 |
 */
-$config['route']['default'] = "/home/";
+$config['route']['module'] = "admin";
 
 /*
 |--------------------------------------------------------------------------
