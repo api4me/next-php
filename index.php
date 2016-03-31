@@ -86,7 +86,7 @@ $route = function($app) {
 
     $dir = strtolower(preg_replace('/[^a-zA-Z]/', '', $dir));
     if (is_dir(sprintf('app/control/%s', $dir))) {
-        if (!$patten) {
+        if (!isset($patten)) {
             $patten = sprintf('/%s/(:name+)', $dir);
         }
 

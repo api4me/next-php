@@ -48,12 +48,14 @@ class Twig {
 /*}}}*/
 /*{{{ render */
     public function render($template, $data) {
+        ob_clean();
         $template = $this->twig->loadTemplate($template);
         return $template->render($data);
     }
 /*}}}*/
 /*{{{ display */
     public function display($template, $data) {
+        ob_clean();
         $template = $this->twig->loadTemplate($template);
         return $template->display($data);
     }

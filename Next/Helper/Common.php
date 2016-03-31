@@ -66,8 +66,9 @@ class Common {
     }
 /*}}}*/
 /*{{{ uuid */
-    public function uuid() {
-        return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+    public function uuid($sp = true) {
+        $f = $sp? '%04x%04x-%04x-%04x-%04x-%04x%04x%04x': '%04x%04x%04x%04x%04x%04x%04x%04x';
+        return sprintf( $f,
             // 32 bits for "time_low"
             mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
 

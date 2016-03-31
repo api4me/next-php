@@ -97,6 +97,37 @@ $config['redis']['reserved'] = null;
 $config['redis']['password'] = null;
 $config['redis']['pconnected'] = false;
 
+/*
+|--------------------------------------------------------------------------
+| Weixin
+|--------------------------------------------------------------------------
+|
+| Weixin api account
+|
+*/
+$config['wechat']['token'] = 'haichuang';
+$config['wechat']['appid'] = 'wx0fbe10a5655ec574';
+$config['wechat']['appsecret'] = '5d7e0f09937184d720c59f76caa8b1cf';
+
+$config['wxpay']['appid'] = 'wx0fbe10a5655ec574';
+$config['wxpay']['mchid'] = '1275202601';
+$config['wxpay']['sk'] = '9234f0e67bf84b9aa73598bd41b1f887';
+$config['wxpay']['sslcert'] = './app/cert/apiclient_cert.pem';
+$config['wxpay']['sslkey'] = './app/cert/apiclient_key.pem';
+$config['wxpay']['pxhost'] = '0.0.0.0';
+$config['wxpay']['pxport'] = 0;
+
+
+/*
+|--------------------------------------------------------------------------
+| SMS
+|--------------------------------------------------------------------------
+|
+| SMS key setting
+|
+*/
+$config["sms"]["ak"] = "njzxxx";
+$config["sms"]["sk"] = "851116";
 
 /*
 |--------------------------------------------------------------------------
@@ -125,7 +156,7 @@ $config['auto']['hook'] = array();
 | Route
 |--------------------------------------------------------------------------
 |
-| URI requests to specific module
+| URI requests to default module
 |
 */
 $config['route']['module'] = "admin";

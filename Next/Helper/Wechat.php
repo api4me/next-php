@@ -37,8 +37,6 @@ class Wechat {
     const OAUTH_PREFIX = 'https://open.weixin.qq.com/connect/oauth2';
     const OAUTH_TOKEN_PREFIX = 'https://api.weixin.qq.com/sns/oauth2';
     const OAUTH_USERINFO_URL = 'https://api.weixin.qq.com/sns/userinfo?';
-    const PAY_DELIVERNOTIFY = 'https://api.weixin.qq.com/pay/delivernotify?';
-    const PAY_ORDERQUERY = 'https://api.weixin.qq.com/pay/orderquery?';
      /*}}}*/
     /*{{{ variable */
     private $app;
@@ -51,6 +49,7 @@ class Wechat {
     private $partnerkey;
     private $paysignkey;
     private $request;
+    private $jsApiTicket;
 
     public $errCode = 40001;
     public $errMsg = "no access";
@@ -70,10 +69,6 @@ class Wechat {
         $this->token = $config['token'];
         $this->appid = $config['appid'];
         $this->appsecret = $config['appsecret'];
-
-        $this->partnerid = $config['partnerid'];
-        $this->partnerkey = $config['partnerkey'];
-        $this->paysignkey = $config['paysignkey'];
     }
 /*}}}*/
 
@@ -547,13 +542,76 @@ class Wechat {
     }
 /*}}}*/
 
-/*{{{ payNonceStr */
+/*{{{ jsapiTicket */
+    public function jsApiTicket() {
+        if ($tmp = $this->app->redis->get('wx:jsti')) {
+            $this->jsApiTicket = $tmp;
+
+            return $this->jsApiTicket;
+        }
+
+        if (!$this->accessToken && !$this->accessToken()) {
+            return false;
+        }
+
+        $resp = $this->invoke(self::API_URL_PREFIX . '/ticket/getticket?access_token=' . $this->accessToken . '&type=jsapi');
+        if ($resp) {
+            $this->jsapiTicket = $resp['ticket'];
+            $expire = $resp['expires_in'] ? intval($resp['expires_in']) - 100 : 7000;
+            $this->app->redis->set('wx:jsti', $resp['ticket'], $expire);
+
+            return $this->jsapiTicket;
+        }
+        return false;
+    }
+/*}}}*/
+/*{{{ jsApiSign */
+    public function jsApiSign($url, $timeStamp, $nonceStr) {
+        if (!$this->jsApiTicket && !$this->jsApiTicket()) {
+            return false;
+        }
+
+        // Remove url string start with #
+        if ($tmp = strpos($url, '#')) {
+            $url = substr($url, 0, strlen($url) - 1 - $tmp);
+        }
+        $data = array(
+            'jsapi_ticket' => $this->jsApiTicket,
+            'noncestr' => $nonceStr,
+            'timestamp' => $timeStamp,
+            'url' => $url,
+        );
+
+        return $this->generateSign($data);
+    }
+/*}}}*/
+/*{{{ signStr */
+    private function signStr($data) {
+        $arr = array_map(function($k, $v) {
+            return sprintf('%s=%s', $k, $v);
+        }, array_keys($data), array_values($data));
+
+        return implode('&', $arr);
+    }
+/*}}}*/
+/*{{{ generateSign */
+    /**
+     * 获取签名
+     * @param array $data 签名数组
+     * @return boolean|string 签名值
+     */
+    private function generateSign($data) {
+        ksort($data);
+        return sha1($this->signStr($data));
+    }
+/*}}}*/
+/*{{{ nonceStr */
     /**
      * 生成随机字串
      * @param number $length 长度，默认为16，最长为32字节
      * @return string
      */
-    public function payNonceStr($length = 16) {
+    public function nonceStr($length = 16) {
         // 密码字符集，可任意添加你需要的字符
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $str = '';
@@ -562,191 +620,6 @@ class Wechat {
         }
 
         return $str;
-    }
-/*}}}*/
-    /*{{{ payPackage */
-    /**
-     * 生成订单package字符串
-     *   body             商品描述, 128 字节以下
-     *   out_trade_no     商户订单号, 32 字节以下
-     *   total_fee        订单总金额, 订单总金额,单位为分
-     *   notify_url       通知 URL, 在支付完成后,接收微信通知支付结果的URL, 255 字节以下
-     *   spbill_create_ip 订单生成的机器IP, 指用户浏览器端IP
-     *
-     *   以下是可选项
-     *   attach           附加数据,字符串类型, 128 字节以下
-     *   time_start       交易起始时间, yyyyMMddHHmmss
-     *   time_expire      交易结束时间, yyyyMMddHHmmss
-     *   transport_fee    物流费用, 位为分. 如有值,必须保证 transport_fee + product_fee=total_fee;
-     *   product_fee      商品费用, 位为分. 如有值,必须保证 transport_fee + product_fee=total_fee;
-     *   goods_tag        商品标记, 优惠券时可能用到
-     * 
-     * @return string
-     */
-    public function payPackage($param) {
-        $default = array(
-            'bank_type' => 'WX',
-            'body' => '',
-            'attach' => null,
-            'partner' => $this->partnerid,
-            'out_trade_no' => '',
-            'total_fee' => '',
-            'fee_type' => '1',
-            'notify_url' => '',
-            'spbill_create_ip' => '',
-            'time_start' => null,
-            'time_expire' => null,
-            'transport_fee' => null,
-            'product_fee' => null,
-            'goods_tag' => null,
-            'input_charset' => 'UTF-8',
-        );
-        $data = array_merge($default, $param);
-        $data = array_filter($data, function($val) {
-            return isset($val);
-        });
-
-        ksort($data);
-        $signValue = strtoupper(md5(sprintf('%s&key=%s', $this->paySignStr($data), $this->partnerkey)));
-        $out = str_replace('+', '%20', http_build_query($data)) . '&sign=' . $signValue;
-
-        return $out;
-    }
-/*}}}*/
-/*{{{ paySign */
-    /**
-     * 支付签名(paySign)生成方法
-     * @param string $package 订单详情字串
-     * @param string $timeStamp 当前时间戳（需与JS输出的一致）
-     * @param string $nonceStr 随机串（需与JS输出的一致）
-     * @return string 返回签名字串
-     */
-    public function paySign($package, $timeStamp, $nonceStr) {
-        $data = array(
-            'appid' => $this->appid,
-            'timestamp' => $timeStamp,
-            'noncestr' => $nonceStr,
-            'package' => $package,
-            'appkey' => $this->paysignkey,
-        );
-
-        return $this->payGenerateSign($data);
-    }
-/*}}}*/
-    /*{{{ payCheckBackSign */
-    /**
-     * 回调通知签名验证
-     * @param array $orderxml 返回的orderXml的数组表示，留空则自动从post数据获取
-     * @return boolean
-     */
-    public function payCheckBackSign($orderxml = '') {
-        if (!$orderxml) {
-            $postStr = file_get_contents('php://input');
-            if (empty($postStr)) {
-                return false;
-            }
-            $orderxml = (array)simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
-        }
-
-        $data = array(
-            'appid' => $orderxml['AppId'],
-            'appkey' => $this->paysignkey,
-            'timestamp' => $orderxml['TimeStamp'],
-            'noncestr' => $orderxml['NonceStr'],
-            'openid' => $orderxml['OpenId'],
-            'issubscribe' => $orderxml['IsSubscribe']
-        );
-        $paySign = $this->payGenerateSign($data);
-
-        return $paySign == $orderxml['AppSignature'];
-    }
-     /*}}}*/
-/*{{{ payDeliverNotify */
-    /**
-     * 发货通知
-     * @param string $openid 用户open_id
-     * @param string $transid 交易单号
-     * @param string $out_trade_no 第三方订单号
-     * @param int $status 0:发货失败；1:已发货
-     * @param string $msg 失败原因
-     * @return boolean|array
-     */
-    public function payDeliverNotify($openid, $transid, $out_trade_no, $status = 1, $msg = 'ok') {
-        if (!$this->accessToken && !$this->accessToken()) {
-            return false;
-        }
-
-        $data = array(
-            'appid' => $this->appid,
-            'appkey' => $this->paysignkey,
-            'openid' => $openid,
-            'transid' => strval($transid) ,
-            'out_trade_no' => strval($out_trade_no) ,
-            'deliver_timestamp' => strval(time()) ,
-            'deliver_status' => strval($status) ,
-            'deliver_msg' => $msg,
-        );
-        $data['app_signature'] = $this->payGenerateSign($data);
-        $data['sign_method'] = 'sha1';
-        unset($data['appkey']);
-
-        return $this->invoke(self::PAY_DELIVERNOTIFY . 'access_token=' . $this->accessToken, $data);
-    }
-     /*}}}*/
-/*{{{ payOrder */
-    /*
-     * 查询订单信息
-     * @param string $tradeNo 订单号
-     * @return boolean|array
-    */
-    public function payOrder($tradeNo) {
-        if (!$this->accessToken && !$this->accessToken()) {
-            return false;
-        }
-
-        $sign = strtoupper(md5("out_trade_no=$tradeNo&partner={$this->partnerid}&key={$this->partnerkey}"));
-        $postdata = array(
-            'appid' => $this->appid,
-            'appkey' => $this->paysignkey,
-            'package' => "out_trade_no={$tradeNo}&partner={$this->partnerid}&sign={$sign}",
-            'timestamp' => strval(time()) ,
-        );
-        $postdata['app_signature'] = $this->payGenerateSign($postdata);
-        $postdata['sign_method'] = 'sha1';
-        unset($postdata['appkey']);
-
-        return $this->invoke(self::PAY_ORDERQUERY . 'access_token=' . $this->accessToken, $postdata);
-    }
-/*}}}*/
-    /*{{{ payAddrSign */
-    /**
-     * 获取收货地址JS的签名
-     * @param string $appId
-     * @param string $url
-     * @param int $timeStamp
-     * @param string $nonceStr
-     * @param string $userToken
-     * @return Ambigous <boolean, string>
-     */
-    public function payAddrSign($url, $timeStamp, $nonceStr, $userToken = '') {
-        if (!$userToken) {
-            $userToken = $this->userToken;
-        }
-        if (!$userToken) {
-            $this->errMsg = 'No user access token found!';
-            return false;
-        }
-
-        $url = htmlspecialchars_decode($url);
-        $arrdata = array(
-            'appid' => $this->appid,
-            'url' => $url,
-            'timestamp' => strval($timeStamp),
-            'noncestr' => $nonceStr,
-            'accesstoken' => $userToken,
-        );
-
-        return $this->payGenerateSign($arrdata);
     }
 /*}}}*/
 
@@ -789,26 +662,6 @@ class Wechat {
         }
 
         return $out;
-    }
-/*}}}*/
-/*{{{ paySignStr */
-    private function paySignStr($data) {
-        $arr = array_map(function($k, $v) {
-            return sprintf('%s=%s', $k, $v);
-        }, array_keys($data), array_values($data));
-
-        return implode('&', $arr);
-    }
-/*}}}*/
-/*{{{ payGenerateSign */
-    /**
-     * 获取签名
-     * @param array $data 签名数组
-     * @return boolean|string 签名值
-     */
-    private function payGenerateSign($data) {
-        ksort($data);
-        return sha1($this->paySignStr($data));
     }
 /*}}}*/
 
