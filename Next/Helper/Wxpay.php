@@ -99,7 +99,10 @@ class Wxpay {
         });
         $data["sign"] = $this->sign($data);
 
-        $out = $this->invoke("pay/unifiedorder", $data);
+        if (!$out = $this->invoke("pay/unifiedorder", $data)) {
+            $this->app->log->error("Wxpay unifiedorder: net invoke fail");
+            return false;
+        }
         if ($out["return_code"] != "SUCCESS") {
             $this->app->log->error("Wxpay unifiedorder: " . $out["return_msg"]);
             return false;
@@ -121,7 +124,7 @@ class Wxpay {
             'appid' => $this->appid,
             'mch_id' => $this->mchid,
             'device_info' => null,
-            'nonce_str' => '',
+            'nonce_str' => $this->nonceStr(),
             'transaction_id' => null,
             'out_trade_no' => null,
             'out_refund_no' => '',
@@ -136,7 +139,20 @@ class Wxpay {
         });
         $data["sign"] = $this->sign($data);
 
-        return $this->invoke("secapi/pay/refund", $data);
+        if (!$out = $this->invoke("secapi/pay/refund", $data, true)) {
+            $this->app->log->error("Wxpay refund: net invoke fail");
+            return false;
+        }
+        if ($out["return_code"] != "SUCCESS") {
+            $this->app->log->error("Wxpay refund: " . $out["return_msg"]);
+            return false;
+        }
+        if ($out["result_code"] != "SUCCESS") {
+            $this->app->log->error(sprintf("Wxpay refund: %s(%s)", $out["err_code_des"], $out["err_code"]));
+            return false;
+        }
+
+        return $out;
     }
 /*}}}*/
 /*{{{ notify */
@@ -248,8 +264,8 @@ class Wxpay {
             curl_setopt($ch,CURLOPT_PROXYPORT, $this->pxport);
         }
         curl_setopt($ch,CURLOPT_URL, $url);
-        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,TRUE);
-        curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,2);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYHOST, FALSE);
         curl_setopt($ch, CURLOPT_HEADER, FALSE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     
