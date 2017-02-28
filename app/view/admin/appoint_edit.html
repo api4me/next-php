@@ -1,0 +1,204 @@
+{% extends 'admin/admin.html' %}
+
+{% block title %}
+<title>预约管理</title>
+{% endblock %}
+
+{% block data %}
+<div class="m-b-md"> 
+    <h3 class="m-b-none">
+        预约编辑 
+        <span class="badge {% if data.pay_status == 1 %}bg-success{% elseif data.pay_status == 0 %}bg-danger{% elseif data.pay_status == 2 %}bg-dark{% endif %}">{{data.pay}}</span>
+    </h3>
+</div>
+<section class="panel panel-default">
+    <div class="panel-body">
+        <form class="form-horizontal" data-validate="parsley">
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">编号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="sn" class="form-control" value="{{data.sn}}" readonly>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">房间号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="type" class="form-control" value="{{data.house ~ '-' ~ data.building ~ '-' ~ data.room}}" readonly>
+                </div>
+            </div>
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">姓名</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="name" class="form-control" value="{{data.name}}" data-required="true">
+                    <span class="help-block m-b-none"></span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">手机号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="phone" class="form-control" value="{{data.phone}}" data-required="true">
+                    <span class="help-block m-b-none"></span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">身份证号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="idcard" class="form-control" value="{{data.idcard}}" data-required="true">
+                    <span class="help-block m-b-none"></span>
+                </div>
+            </div>
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">支付金额</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="tel" class="form-control" value="{{data.money}}" readonly>
+                    <span class="help-block m-b-none">{{ data.pay }}{% if data.pay_date %} (时间: {{data.pay_date|date("Y-m-d h:i:s")}}){% endif %}</span>
+                </div>
+            </div>
+
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <div class="col-sm-4 col-sm-offset-2">
+                    <button type="submit" class="btn btn-primary btn-save">保存</button>
+                    <button class="btn btn-default btn-cancel">取消</button>
+                    {% if data.pay_status == 0 %}
+                    <button class="btn btn-link btn-xs btn-del">删除无效预约</button>
+                    {% elseif data.pay_status == 1 %}
+                    <button class="btn btn-link btn-xs btn-refund">退款</button>
+                    {% endif %}
+                    <input type="hidden" name="id" value="{{data.id}}">
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document"> 
+        <div class="modal-content"> 
+            <div class="modal-header"> 
+                <button type="button" class="close" data-dismiss="modal">&times;</button> 
+                <h4 class="modal-title">退款</h4> 
+            </div> 
+            <div class="modal-body">
+                <form class="bs-example form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">退款金额</label>
+                    <div class="col-sm-6">
+                        <input type="number" name="money" class="form-control" placeholder="" data-max="{{data.money}}"/>
+                        <span class="help-block m-b-none">用户支付金额 &yen;{{data.money}}元</span>
+                    </div>
+                </div>
+                <div class="line line-dashed line-lg pull-in"></div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">退款事由</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="reason" class="form-control" />
+                        <span class="help-block m-b-none">使用64个字描述退款原因</span>
+                    </div>
+                </div>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary btn-refund-save">保存</a> 
+                <a href="#" class="btn btn-default" data-dismiss="modal">取消</a>
+            </div> 
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function () {
+    // ------------------------
+    // Form save.
+    // ------------------------
+    $("form").submit(function() {
+        if (!$(this).parsley().isValid()) {
+            return false;
+        }
+
+        var data = {};
+        data.name = $.trim($("[name='name']").val());
+        data.phone = $.trim($("[name='phone']").val());
+        data.idcard = $.trim($("[name='idcard']").val());
+        data.id = $("[name='id']").val();
+
+        $.post("/admin/appoint/edit/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == "200") {
+                location.href = "/admin/appoint/edit/?id=" + resp.id;
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-del").click(function() {
+        if (!confirm("确定删除吗?")) {
+            return false;
+        }
+
+        var data = {
+            "id": $('[name="id"]').val()
+        };
+        $.post("/admin/appoint/del/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = "/admin/appoint/";
+            }
+        }, "json");
+
+        return false;
+    });
+
+    {% if data.pay_status == 1 %}
+    $(".btn-refund").click(function() {
+        $("#modal-edit").modal({keyboard: false});
+        return false;
+    });
+    $(".btn-refund-save").click(function() {
+        var data = {
+            "id": $('[name="id"]').val(),
+            "money": $('#modal-edit [name="money"]').val(),
+            "reason": $('#modal-edit [name="reason"]').val()
+        };
+        if (data.money.length == 0) {
+            alert("请填写退款金额");
+            return false;
+        }
+        if (parseInt(data.money) > parseInt($('#modal-edit [name="money"]').attr("data-max"))) {
+            alert("退款金额超出了支付金额");
+            return false;
+        }
+        if (data.reason.length == 0) {
+            alert("请填写退款事由");
+            return false;
+        }
+
+        if (!confirm("确定退款吗?")) {
+            return false;
+        }
+
+        $.post("/admin/appoint/refund/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = location.href;
+            }
+        }, "json");
+
+        return false;
+    });
+    {% endif %}
+
+    $(".btn-cancel").click(function() {
+         location.href = "/admin/appoint/";
+         return false;
+    });
+
+});
+</script>
+{% endblock %}

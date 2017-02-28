@@ -1,0 +1,90 @@
+{% extends 'admin/admin.html' %}
+
+{% block tilte %}
+<title>预约管理</title>
+{% endblock %}
+
+{% block data %}
+<div class="m-b-md"> <h3 class="m-b-none">预约列表</h3> </div>
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+        <table class="table table-striped b-t b-light" data-ride="datatables">
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>房间号</th>
+                    <th>姓名</th>
+                    <th>手机号</th>
+                    <th>支付状态</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function () {
+    $('[data-ride="datatables"]').dataTable({
+        "bProcessing": true,
+        "language": {
+            "url": "/assets/note/js/datatables/zh-cn.json"
+        },
+        "ajax": {
+            "url": "/admin/appoint/",
+            "type": "POST"
+        },
+        "sDom": "<'row'<'col-sm-6'<'x dataTables_length'>><'col-sm-6'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+        "sPaginationType": "full_numbers",
+        "order": [[0, "desc"]],
+        "columns": [
+            {"data": "sn"},
+            {"data": "room", "render": function(data, type, row) {
+                return row.house + '-' + row.building + '-' + row.room;
+            }},
+            {"data": "name"},
+            {"data": "phone"},
+            {"data": "pay"},
+            {
+                "data": null,
+                "sortable": false,
+                "render": function (data, type, row){ 
+                    var html = '<a href="/admin/appoint/edit/?id='+row.id+'"><i class="fa fa-edit"></i></a>';
+                    if (row.pay_status == 0) {
+                        html += ' <a href="javascript:;" class="btn-del" data-id='+row.id+'"><i class="fa fa-trash-o"></i></a>';
+                    }
+                    return html
+                }
+            }
+        ],
+        "initComplete": function() {
+            //$("div.x").html('<a href="/admin/house/add/" class="btn btn-s-md btn-primary">新增</a>');
+        }
+    });
+
+    $("#content").on("click", ".btn-del", function() {
+        if (!confirm("确定删除吗?")) {
+            return false;
+        }
+
+        var data = {
+            "id": $(this).attr("data-id")
+        };
+        $.post("/admin/appoint/del/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = location.href;
+            }
+        }, "json");
+
+        return false;
+    });
+
+});
+</script>
+{% endblock %}

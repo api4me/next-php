@@ -1,0 +1,116 @@
+{% extends 'admin/admin.html' %}
+
+{% block tilte %}
+<title>砍价管理</title>
+{% endblock %}
+
+{% block data %}
+<div class="m-b-md"> <h3 class="m-b-none">砍价列表</h3> </div>
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+        <table class="table table-striped b-t b-light" data-ride="datatables">
+            <thead>
+                <tr>
+                    <th>编号</th>
+                    <th>活动名称</th>
+                    <th>砍价总额</th>
+                    <th>单次砍价上限</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>状态</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">微信访问URL</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-default" data-dismiss="modal">确定</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function () {
+    $('[data-ride="datatables"]').dataTable({
+        "bProcessing": true,
+        "language": {
+            "url": "/assets/note/js/datatables/zh-cn.json"
+        },
+        "ajax": {
+            "url": "/admin/cut/",
+            "type": "POST"
+        },
+        "sDom": "<'row'<'col-sm-6'<'x dataTables_length'>><'col-sm-6'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+        "sPaginationType": "full_numbers",
+        "bSort": false,
+        "columns": [
+            {"data": "no"},
+            {"data": "name"},
+            {"render": function(data, type, row) {
+                return '&yen;' + row.price;
+            }},
+            {"render": function(data, type, row) {
+                return '&yen;' + row.cut;
+            }},
+            {"data": "start_date"},
+            {"data": "end_date"},
+            {"data": "status_name"},
+            {"render": function (data, type, row){ 
+                    var html = '<a href="/admin/cut/edit/?id='+row.id+'"><i class="fa fa-edit"></i></a>';
+                    if (row.status == 0) {
+                        html += ' <a href="javascript:;" class="btn-del" data-id='+row.id+'"><i class="fa fa-trash-o"></i></a>';
+                    } else {
+                        html += ' <a href="javascript:;" class="btn-link" data-link="{{common.config.domain}}house/cut/?id='+row.id+'"><i class="fa fa-link"></i></a>';
+                    }
+                    return html
+                }
+            }
+        ],
+        "initComplete": function() {
+            $("div.x").html('<a href="/admin/cut/add/" class="btn btn-s-md btn-primary">新增</a>');
+        }
+    });
+
+    $("#content").on("click", ".btn-link", function() {
+        $("#modal-edit .modal-body").text($(this).attr("data-link"));
+        $("#modal-edit").modal({keyboard: false});
+    });
+
+    $("#content").on("click", ".btn-del", function() {
+        if (!confirm("确定删除吗?")) {
+            return false;
+        }
+
+        var data = {
+            "id": $(this).attr("data-id")
+        };
+        $.post("/admin/cut/del/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = location.href;
+            }
+        }, "json");
+
+        return false;
+    });
+
+});
+</script>
+{% endblock %}

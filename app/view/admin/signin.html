@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" class="bg-dark">
+
+<head>
+    <meta charset="utf-8" />
+    <title>苏宁环球 | 登录</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="/assets/note/css/font.css" type="text/css" />
+    <link rel="stylesheet" href="/assets/note/css/app.v1.css" type="text/css" />
+    <!--[if lt IE 9]> <script src="/assets/note/js/ie/html5shiv.js"></script> <script src="/assets/note/js/ie/respond.min.js"></script> <script src="/assets/note/js/ie/excanvas.js"></script> <![endif]-->
+</head>
+
+<body class="">
+    <section id="content" class="m-t-lg wrapper-md animated fadeInUp">
+        <div class="container aside-xxl"> <a class="navbar-brand block" href="/admin/">苏宁环球 房产预定管理平台</a>
+            <section class="panel panel-default bg-white m-t-lg">
+                <header class="panel-heading text-center"> <strong>登录</strong> </header>
+                <form id="login" class="panel-body wrapper-lg">
+                    <div class="form-group"> <label class="control-label">用户名</label> <input type="text" name="code" placeholder="登录账号" class="form-control input-lg"> </div>
+                    <div class="form-group"> <label class="control-label">密码</label> <input type="password" name="pwd" id="inputPassword" placeholder="密码" class="form-control input-lg"> </div>
+                    <div class="checkbox"> <label> <input type="checkbox"> 记住我 </label> </div>  <a href="javascript:void(0);" class="btn btn-primary btn-block login">登录</a>
+                </form>
+            </section>
+        </div>
+    </section>
+    <!-- footer -->
+    <footer id="footer">
+        <div class="text-center padder">
+            <p> <small>苏宁环球集团有限公司<br>&copy; {{date("Y")}}</small> </p>
+        </div>
+    </footer>
+    <!-- / footer -->
+    <!-- Bootstrap -->
+    <!-- App -->
+    <script src="/assets/note/js/app.v1.js"></script>
+    <script src="/assets/note/js/app.plugin.js"></script>
+    <script src="/assets/js/lib/md5.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#login [name="code"]').focus();
+            $('#login .login').click(function() {
+                var data = {
+                    code: $('#login [name="code"]').val() || '',
+                    pwd: $('#login [name="pwd"]').val() || ''
+                }
+                $('[name="pwd"]').val('');
+                data.hmac = md5(data.code+data.pwd);
+                $.post('/admin/signin/', data, function(resp) {
+                    if (resp.code == "0") {
+                        location.href = '/admin/home/';
+                    } else {
+                        alert(resp.msg);
+                    }
+                }, 'json');
+            });
+            $('#login [name="pwd"]').keydown(function(e) {
+                if (e.keyCode == 13) {
+                    $('#login .login').trigger('click');
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

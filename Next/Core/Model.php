@@ -140,6 +140,9 @@ abstract class Model {
                 case '=':
                     $out = sprintf('`%s`%s', $k, $v);
                     break;
+                case '^':
+                    $out = sprintf('`%s` %s', $k, substr(trim($v), 1));
+                    break;
                 default:
                     $out = sprintf('`%s`=%s', $k, $v);
                     break;
@@ -175,6 +178,9 @@ abstract class Model {
                 case '>':
                 case '=':
                     $out = sprintf('`%s`%s', $k, $v);
+                    break;
+                case '^':
+                    $out = sprintf('`%s` %s', $k, substr(trim($v), 1));
                     break;
                 case ':':
                 default:

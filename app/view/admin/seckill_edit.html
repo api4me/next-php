@@ -1,0 +1,249 @@
+{% extends 'admin/admin.html' %}
+
+{% block title %}
+<title>秒杀活动管理</title>
+{% endblock %}
+
+{% block data %}
+<div class="m-b-md"> 
+    <h3 class="m-b-none">
+        {% if not data.id %}
+        新增秒杀活动
+        {% else %}
+        秒杀活动编辑 
+        {% if data.status == 1 %}
+            {% if data.start_date > option.now %}
+            <span class="badge bg-info">未开始</span>
+            {% elseif data.start_date <= option.now and data.end_date >= option.now %}
+            <span class="badge bg-success">进行中</span>
+            {% elseif data.end_date < option.now %}
+            <span class="badge bg-dark">已结束</span>
+            {% endif %}
+        {% elseif data.status == 0 %}
+        <span class="badge bg-default">不可用</span>
+        {% elseif data.status == 8 %}
+        <span class="badge bg-default">已终止</span>
+        {% endif %}
+        {% endif %}
+    </h3>
+</div>
+{% set isEnable = (data.status == 0 or data.start_date > option.now) %}
+<section class="panel panel-default">
+    <div class="panel-body">
+        <form class="form-horizontal" data-validate="parsley">
+            {% if data.id %}
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">编号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="sn" class="form-control" value="{{str_pad(data.id, 6, "0", STR_PAD_LEFT)}}" readonly>
+                </div>
+            </div>
+            {% endif %}
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">活动名称</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="name" class="form-control" value="{{data.name}}" data-required="true">
+                </div>
+            </div>
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">抵用券</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="price" class="form-control" value="{{data.price}}"{% if isEnable %} data-required="true"{% else %} readonly{% endif %}>
+                    <span class="help-block m-b-none">购房抵用金额</span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">数量</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="num" class="form-control" value="{{data.num}}" data-type="number"{% if isEnable %} data-required="true"{% else %} readonly{% endif %}>
+                    <span class="help-block m-b-none">本次活动发放的券数量{% if data.id %}，未领取数量{{data.residue}}{% endif %}</span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">开始时间</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="start_date" class="form-control{% if isEnable %} datepicker{% endif %}" value="{{data.start_date}}"{% if isEnable %} data-required="true"{% else %} readonly{% endif %}>
+                    <span class="help-block m-b-none"></span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">结束时间</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="end_date" class="form-control{% if isEnable %} datepicker{% endif %}" value="{{data.end_date}}"{% if isEnable %} data-required="true"{% else %} readonly{% endif %}>
+                    <span class="help-block m-b-none"></span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">有效期</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="period" class="form-control" value="{{data.period}}" data-type="number"{% if isEnable %} data-required="true"{% else %} readonly{% endif %}>
+                    <span class="help-block m-b-none">领券后使用有效期(单位: 天)，如: 7</span>
+                </div>
+            </div>
+
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">活动图片</label> 
+                <div class="col-sm-4 img-upload" data-url="/admin/upload/json/">
+                    <img {% if data.thumb %}src="/assets/upload/{{data.thumb}}"{% else %}data-src="holder.js/645x258"{% endif %} width="645" height="258" data-url="{{data.thumb}}" />
+                    <button class="pick btn btn-default" id="filePicker">选择图片</button>
+                </div>
+            </div>
+
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">活动描述</label> 
+                <div class="col-sm-8"> 
+                    <textarea name="desc" rows="5" class="form-control">{{data.desc}}</textarea>
+                    <span class="help-block m-b-none"></span>
+                </div>
+            </div>
+
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <div class="col-sm-4 col-sm-offset-2">
+                    <button type="submit" class="btn btn-primary btn-save">保存</button>
+                    <button class="btn btn-default btn-cancel">取消</button>
+                    {% if data.id %}
+                        {% if data.status == 0 %}
+                        <button class="btn btn-warning btn-start">对外发布</button>
+                        <button class="btn btn-link btn-xs btn-del">删除</button>
+                        {% elseif data.status == 1 %}
+                        {% if data.end_date >= option.now %}
+                        <button class="btn btn-warning btn-stop">终止</button>
+                        {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    <input type="hidden" name="id" value="{{data.id}}">
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/assets/dp/jquery.datetimepicker.css" type="text/css" />
+<link rel="stylesheet" href="/assets/webuploader/webuploader.css" type="text/css" />
+<link rel="stylesheet" href="/assets/css/admin.css" type="text/css" />
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="/assets/dp/build/jquery.datetimepicker.full.js"></script>
+<script type="text/javascript" src="/assets/holder/holder.min.js"></script>
+<script type="text/javascript" src="/assets/webuploader/webuploader.html5only.min.js"></script>
+<script type="text/javascript" src="/assets/js/upload.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+
+    $.datetimepicker.setLocale('zh');
+    $(".datepicker").datetimepicker({
+        minDate: '{{option.now}}'
+    });
+    // ------------------------
+    // Form save.
+    // ------------------------
+    $("form").submit(function() {
+        if (!$(this).parsley().isValid()) {
+            return false;
+        }
+
+        var data = {};
+        data.name = $.trim($("[name='name']").val());
+        data.thumb = $(".img-upload img").attr("data-url");
+        data.desc = $.trim($("[name='desc']").val());
+        data.id = $("[name='id']").val();
+
+        {% set isEnable = (data.status == 0 or data.start_date > option.now) %}
+        {% if isEnable %}
+        data.price = $.trim($("[name='price']").val());
+        data.num = $.trim($("[name='num']").val());
+        data.start_date = $.trim($("[name='start_date']").val());
+        data.end_date = $.trim($("[name='end_date']").val());
+        data.period = $.trim($("[name='period']").val());
+
+        if (data.start_date >= data.end_date) {
+            alert("活动开始时间需小于活动结束时间");
+            return false;
+        }
+        {% endif %}
+
+        $.post("/admin/seckill/edit/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == "200") {
+                location.href = "/admin/seckill/edit/?id=" + resp.id;
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-start").click(function() {
+        if (!confirm("确定发布吗?")) {
+            return false;
+        }
+
+        var data = {
+            "id": $('[name="id"]').val()
+        };
+        $.post("/admin/seckill/start/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = location.href;
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-del").click(function() {
+        if (!confirm("确定删除吗?")) {
+            return false;
+        }
+
+        var data = {
+            "id": $('[name="id"]').val()
+        };
+        $.post("/admin/seckill/del/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = "/admin/seckill/";
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-stop").click(function() {
+        var data = {
+            "id": $('[name="id"]').val()
+        };
+
+        if (!confirm("终止后，活动立即下线并不可逆转，确定终止吗?")) {
+            return false;
+        }
+
+        $.post("/admin/seckill/stop/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = location.href;
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-cancel").click(function() {
+         location.href = "/admin/seckill/";
+         return false;
+    });
+
+    upx();
+
+    $("form").submit(function() {
+        return false;
+    });
+});
+</script>
+{% endblock %}

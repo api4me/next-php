@@ -1,85 +1,138 @@
 <!DOCTYPE html>
-<html lang="utf-8">
-    <head>
-        <meta charset="utf-8">
-        <title>尔冬吉微信商城管理系统</title>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        <link href="/assets/bootstrap/v2/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/assets/css/admin.css" rel="stylesheet">
-    </head>
-    <body>
-        <div id="content" class="container-fluid">
-            {% block navbar %}
-            <div class="navbar navbar-inverse navbar-fixed-top">
-                <div class="navbar-inner">
-                    <div class="container">
-                        <div class="nav-collapse collapse">
-                            <a class="brand" href="/admin/delivery/" title="首页"><i class="icon-home icon-white"></i> &nbsp;</a>    
-                            <ul class="nav">
-                                <li><a href="#/">微信 | 尔冬吉微商城</a></li>
+<html lang="en" class="app">
+
+<head>
+    <meta charset="utf-8" />
+    {% block title %}
+    <title>管理平台</title>
+    {% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="/assets/note/css/font.css" type="text/css" />
+    <link rel="stylesheet" href="/assets/note/js/calendar/bootstrap_calendar.css" type="text/css" />
+    <link rel="stylesheet" href="/assets/note/css/app.v1.css" type="text/css" />
+    <link rel="stylesheet" href="/assets/note/js/fuelux/fuelux.css" type="text/css" />
+    <link rel="stylesheet" href="/assets/note/js/datatables/datatables.css" type="text/css" />
+    <link rel="stylesheet" href="/assets/note/js/select2/select2.css" type="text/css" />
+    <link rel="stylesheet" href="/assets/note/js/select2/theme.css" type="text/css" />
+    <!--[if lt IE 9]> <script src="/assets/note/js/ie/html5shiv.js"></script> <script src="/assets/note/js/ie/respond.min.js"></script> <script src="/assets/note/js/ie/excanvas.js"></script> <![endif]-->
+    {% block css %}
+    {% endblock %}
+</head>
+
+<body class="">
+    <section class="vbox">
+        <header class="bg-dark dk header navbar navbar-fixed-top-xs">
+            <div class="navbar-header aside-md">
+                <a class="btn btn-link visible-xs" data-toggle="class:nav-off-screen,open" data-target="#nav,html"> <i class="fa fa-bars"></i> </a>
+                <a href="#" class="navbar-brand" data-toggle="fullscreen"><img src="/assets/note/images/logo.png" class="m-r-sm">苏宁环球</a>
+                <a class="btn btn-link visible-xs" data-toggle="dropdown" data-target=".nav-user"> <i class="fa fa-cog"></i> </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right m-n hidden-xs nav-user">
+                <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span class="thumb-sm avatar pull-left"> <img src="/assets/note/images/avatar_default.jpg"> </span> {{common.user.account.name}} <b class="caret"></b> </a>
+                    <ul class="dropdown-menu animated fadeInRight"> <span class="arrow top"></span>
+                        <li> <a href="/admin/setting/">配置管理</a> </li>
+                        <!--                        <li> <a href="/admin/profile/">人个中心</a> </li> -->
+                        {% if common.user.level == "super" %}
+                        <li> <a href="/admin/account/">管理员设置</a> </li>
+                        {% endif %}
+                        <li class="divider"></li>
+                        <li> <a href="/admin/logout/" data-toggle="ajaxModal">退出</a> </li>
+                    </ul>
+                </li>
+            </ul>
+        </header>
+        <section>
+            <section class="hbox stretch">
+                <!-- .aside -->
+                <aside class="bg-dark lter aside-md hidden-print hidden-xs" id="nav">
+                    <section class="vbox">
+                        <header class="header bg-primary lter text-center clearfix">
+                        </header>
+                        <section class="w-f scrollable">
+                            <div class="slim-scroll" data-height="auto" data-disable-fade-out="true" data-distance="0" data-size="5px" data-color="#333333">
+                                <!-- nav -->
+                                <nav class="nav-primary hidden-xs">
+                                    <ul class="nav">
+                                        <li{% if strpos(common.uri, "/admin/house/") is same as(0) or strpos(common.uri, "/admin/room/") is same as(0) %} class="active"{% endif %}>
+                                            <a href="#" class="active"> <i class="fa fa-building-o icon"> <b class="bg-danger"></b> </i> <span class="pull-right"> <i class="fa fa-angle-down text"></i> <i class="fa fa-angle-up text-active"></i> </span> <span>楼盘管理</span> </a>
+                                            <ul class="nav lt">
+                                                <li>
+                                                    <a href="/admin/house/"> <i class="fa fa-angle-right"></i> <span>楼盘列表</span> </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/admin/room/"> <i class="fa fa-angle-right"></i> <span>楼盘房源</span> </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li{% if strpos(common.uri, "/admin/appoint/") is same as(0) %} class="active"{% endif %}>
+                                            <a href="/admin/appoint/"> <i class="fa fa-bookmark icon"> <b class="bg-warning"></b> </i> <span>预约列表</span> </a>
+                                        </li>
+                                        <li{% if strpos(common.uri, "/admin/user/") is same as(0) %} class="active"{% endif %}>
+                                            <a href="/admin/user/"> <i class="fa fa-user icon"> <b class="bg-success"></b> </i> <span>用户管理</span> </a>
+                                        </li>
+                                        <li{% if strpos(common.uri, "/admin/carousel/") is same as(0) %} class="active"{% endif %}>
+                                            <a href="/admin/carousel/"> <i class="fa fa-picture-o icon"> <b class="bg-primary"></b> </i> <span>滚动图管理</span> </a>
+                                        </li>
+                                        <li{% if strpos(common.uri, "/admin/setting/") is same as(0) %} class="active"{% endif %}>
+                                            <a href="/admin/setting/"> <i class="fa fa-gear icon"> <b class="bg-info"></b> </i> <span>配置管理</span> </a>
+                                        </li>
+
+                                        <li{% if strpos(common.uri, "/admin/seckill/") is same as(0) or strpos(common.uri, "/admin/auction/") is same as(0) or strpos(common.uri, "/admin/cut/") is same as(0) %} class="active"{% endif %}>
+                                            <a href="#" class="active"> <i class="fa fa-bar-chart-o icon"> <b class="bg-success"></b> </i> <span class="pull-right"> <i class="fa fa-angle-down text"></i> <i class="fa fa-angle-up text-active"></i> </span> <span>活动管理</span> </a>
+                                            <ul class="nav lt">
+                                                <li>
+                                                    <a href="/admin/seckill/"> <i class="fa fa-angle-right"></i> <span>秒杀管理</span> </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/admin/auction/"> <i class="fa fa-angle-right"></i> <span>拍卖管理</span> </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/admin/cut/"> <i class="fa fa-angle-right"></i> <span>砍价管理</span> </a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                <!-- / nav -->
+                            </div>
+                        </section>
+                        <footer class="footer lt hidden-xs b-t b-dark">
+                            <a href="#nav" data-toggle="class:nav-xs" class="pull-right btn btn-sm btn-dark btn-icon"> <i class="fa fa-angle-left text"></i> <i class="fa fa-angle-right text-active"></i> </a>
+                        </footer>
+                    </section>
+                </aside>
+                <!-- /.aside -->
+                <section id="content">
+                    <section class="vbox">
+                        <section class="scrollable padder">
+                            {#<ul class="breadcrumb no-border no-radius b-b b-light pull-in">
+                                <li><a href="/admin/"><i class="fa fa-home"></i> 首页</a></li>
+                                <li class="active">Workset</li>
                             </ul>
-                            <ul class="nav pull-right">
-                                <li><a href="/login/out/" title="退出" alt="退出"><i class="icon-off icon-white"></i> &nbsp;</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endblock %}
-            <!-- nav -->
+                            #}
+                            {% block data %}
+                            {% endblock %}
+                        </section>
+                    </section>
+                </section>
+                <aside class="bg-light lter b-l aside-md hide" id="notes">
+                    <div class="wrapper">Notification</div>
+                </aside>
+            </section>
+        </section>
+    </section>
+    <!-- Bootstrap -->
+    <!-- App -->
+    <script src="/assets/note/js/app.v1.js"></script>
+    <script src="/assets/note/js/fuelux/fuelux.js"></script>
+    <script src="/assets/note/js/datatables/jquery.dataTables.min.js"></script>
+    <script src="/assets/note/js/parsley/parsley.min.js"></script>
+    <script src="/assets/note/js/parsley/i18n/messages.zh_cn.js"></script>
+    <script src="/assets/note/js/select2/select2.min.js"></script>
+    <script src="/assets/note/js/app.plugin.js"></script>
+    {% block js %}
+    {% endblock %}
+</body>
 
-            <div class="layout-page row-fluid">
-                <div class="layout-side span2">
-                    {% block menu %}
-                    <div class="sidebar-menu">
-                    <!--
-                        <a href="#setting" class="nav-header menu-first" data-toggle="collapse"><i class="icon-book icon-large"></i>公众号管理</a>
-                        <ul id="setting" class="nav nav-list menu-second">
-                            <li><a href="/admin/greeting/"><i class="icon-bookmark"></i>首次关注回复</a></li>
-                            <li><a href="/admin/autoreply/"><i class="icon-comment"></i>自动回复</a></li>
-                            <li><a href="/admin/menu/"><i class="icon-th-list"></i>自定义菜单</a></li>
-                        </ul>
-                    -->
-                        <a href="#weshopMenu" class="nav-header menu-first collapsed" data-toggle="collapse"><i class="icon-book icon-large"></i>微商城管理</a>
-                        <ul id="weshopMenu" class="nav nav-list menu-second">
-                        	<li><a href="/admin/article/"><i class="icon-list-alt"></i>文章</a></li>
-                            <li><a href="/admin/product/"><i class="icon-tint"></i>商品</a></li>
-                            <li><a href="/admin/order/"><i class="icon-download"></i>订单</a></li>
-                            <li><a href="/admin/delivery/"><i class="icon-road"></i>配送</a></li>
-                            <li><a href="/admin/user/"><i class="icon-user"></i>用户</a></li>
-                            <li><a href="/admin/feedback/"><i class="icon-envelope"></i>留言</a></li>
-                            <li><a href="https://mp.weixin.qq.com/" target="_blank"><i class="icon-tasks"></i>数据分析</a></li>
-                            <li><a href="/admin/shiptime/"><i class="icon-time"></i>送水时间限制</a></li>
-                            <li><a href="/admin/activity/"><i class="icon-gift"></i>分享券活动</a></li>
-                            <li><a href="/admin/gift/"><i class="icon-gift"></i>礼品券活动</a></li>
-                            <li><a href="/admin/gift/delivery/"><i class="icon-gift"></i>礼品发放</a><span class="remind hide">·</span></li>
-                            <li><a href="/admin/statistics/"><i class="icon-list"></i>统计</a></li>
-                            <!--<li><a href="/admin/awards/"><i class="icon-gift"></i>抽奖管理</a></li>-->
-                        </ul>
-                    </div>
-                    {% endblock %}
-                </div>
-
-                <div class="layout-main well span10" id="data">
-                {% block data %}
-                {% endblock %}
-                </div>
-            </div>
-            <!-- container -->
-        </div>
-        <!-- content -->
-
-        <footer class="footer">
-            <div class="container">
-                <p>
-                &copy;{{ date('Y') }} 尔冬吉微商城
-                </p>
-            </div>
-        </footer>
-        <!--[if lt IE 9]>
-        <script src="/assets/js/lib/html5shiv.js"></script>
-        <![endif]-->
-        <script src="/assets/js/lib/require.js" data-main="/assets/js/admin"></script>
-     </body>
 </html>

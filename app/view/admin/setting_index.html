@@ -1,0 +1,192 @@
+{% extends 'admin/admin.html' %}
+
+{% block title %}
+<title>配置管理</title>
+{% endblock %}
+
+{% block data %}
+<div class="m-b-md"> <h3 class="m-b-none">配置项列表</h3> </div>
+
+<section class="panel panel-default">
+    <div class="table-responsive">
+        <table class="table table-striped b-t b-light" data-ride="datatables">
+            <thead>
+                <tr>
+                    <th>类别</th>
+                    <th>名称</th>
+                    <th>排序 <a href="javascript:;" class="btn-sort"><i class="fa fa-save"></i></a></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<div class="modal fade" id="modal-edit" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document"> 
+        <div class="modal-content"> 
+            <div class="modal-header"> 
+                <button type="button" class="close" data-dismiss="modal">&times;</button> 
+                <h4 class="modal-title">编辑</h4> 
+            </div> 
+            <div class="modal-body">
+                <form class="bs-example form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">类别</label>
+                    <div class="col-sm-6">
+                        <select name="type" class="form-control m-b">
+                            <option value="">-- 请选择 --</option>
+                            {% for key, val in option.type %}
+                            <option value="{{key}}">{{val}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">配置项名称</label>
+                    <div class="col-sm-6">
+                        <input type="text" name="value" class="form-control" placeholder="配置项名称" />
+                        <span class="help-block m-b-none">最长16个字</span>
+                    </div>
+                </div>
+                <input type="hidden" name="id" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary btn-save">保存</a> 
+                <a href="#" class="btn btn-default" data-dismiss="modal">取消</a>
+            </div> 
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function () {
+    $('[data-ride="datatables"]').dataTable({
+        "bProcessing": true,
+        "language": {
+            "url": "/assets/note/js/datatables/zh-cn.json"
+        },
+        "ajax": {
+            "url": "/admin/setting/",
+            "type": "POST"
+        },
+        "sDom": "<'row'<'col-sm-6'<'x dataTables_length'>><'col-sm-6'f>r>t<'row'<'col-sm-6'i><'col-sm-6'p>>",
+        "sPaginationType": "full_numbers",
+        "bSort": false, 
+        "bPaginate": false, 
+        "columns": [
+            {"data": "type_name"},
+            {"data": "value"},
+            {
+                "mRender": function (data, type, row){ 
+                    return '<input type="number" class="col-md-3 v-sort" value="'+row.sort+'" data-id="'+row.id+'">';
+                }
+            },
+            {
+                "mRender": function (data, type, row){ 
+                    return '<a href="javascript:;" class="btn-edit" data-id="'+row.id+'" data-type="'+row.type+'" data-value="'+row.value+'"><i class="fa fa-edit"></i></a>'+
+                        ' <a href="javascript:;" class="btn-del" data-id="'+row.id+'"><i class="fa fa-trash-o"></i></a>';
+                }
+            }
+        ],
+        "initComplete": function() {
+            $("div.x").html('<a href="javascript:;" class="btn btn-s-md btn-primary btn-add">新增</a>');
+        }
+    });
+
+    function editLoad(data) {
+        var def = {
+            "id": "0",
+            "type": "",
+            "value": ""
+        };
+        var d = $.extend({}, def, data);
+
+        $('#modal-edit [name="id"]').val(d.id);
+        $('#modal-edit [name="type"]').val(d.type);
+        $('#modal-edit [name="value"]').val(d.value);
+
+        $("#modal-edit").modal({keyboard: false});
+    }
+
+    $("#content").on("click", ".btn-add", function() {
+        editLoad();
+    });
+    $("#content").on("click", ".btn-edit", function() {
+        editLoad({
+            "id": $(this).attr("data-id"),
+            "type": $(this).attr("data-type"),
+            "value": $(this).attr("data-value")
+        });
+    });
+    $("#content").on("click", "#modal-edit .btn-save", function() {
+        var data = {
+            "id": $('#modal-edit [name="id"]').val(),
+            "type": $('#modal-edit [name="type"]').val(),
+            "value": $.trim($('#modal-edit [name="value"]').val())
+        };
+        if (data.type.length == 0) {
+            alert("请选择类别");
+            return false;
+        }
+        if (data.value.length == 0) {
+            alert("请输入配置项名称");
+            return false;
+        }
+
+        $.post("/admin/setting/edit/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = '/admin/setting/';
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $("#content").on("click", ".btn-del", function() {
+        if (!confirm("确定删除吗?")) {
+            return false;
+        }
+
+        var data = {
+            "id": $(this).attr("data-id")
+        };
+        $.post("/admin/setting/del/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = location.href;
+            }
+        }, "json");
+
+        return false;
+    });
+    $("#content").on("click", ".btn-sort", function() {
+        var data = {"id":[], "sort":[]};
+        $(".v-sort").each(function() {
+            data.id.push($(this).attr("data-id"));
+            data.sort.push($(this).val());
+        });
+        if (data.id.length == 0) {
+            return false;
+        }
+        $.post("/admin/setting/sort/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = location.href;
+            }
+        }, "json");
+
+        return false;
+    });
+});
+</script>
+
+
+{% endblock %}

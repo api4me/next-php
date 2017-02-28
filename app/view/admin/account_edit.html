@@ -1,0 +1,191 @@
+{% extends 'admin/admin.html' %}
+
+{% block title %}
+<title>管理员设置</title>
+{% endblock %}
+
+{% block data %}
+<div class="m-b-md"> 
+    <h3 class="m-b-none">
+        {% if not data.id %}
+        新增管理员 
+        {% else %}
+        管理员编辑 
+        {% endif %}
+    </h3>
+</div>
+<section class="panel panel-default">
+    <div class="panel-body">
+        <form class="form-horizontal" data-validate="parsley">
+            {% if data.id %}
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">编号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="sn" class="form-control" value="{{str_pad(data.id, 6, "0", STR_PAD_LEFT)}}" readonly>
+                </div>
+            </div>
+            {% endif %}
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">登录账号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="code" class="form-control" value="{{data.code}}" data-required="true">
+                    <span class="help-block m-b-none">登录后台用，系统唯一</span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">密码</label> 
+                <div class="col-sm-4"> 
+                    {% if not data.id %}
+                    <input type="password" name="pwd" class="form-control" value="suning2016" data-required="true">
+                    <span class="help-block m-b-none">登录后台用，默认密码：suning2016</span>
+                    {% else %}
+                    <div class="tab-label">
+                        ******
+                        <button class="btn btn-link btn-reset">重置密码</buton>
+                    </div>
+                    <div class="tab-input" style="display:none">
+                        <input type="password" name="pwd" class="form-control" value="">
+                        <button class="btn btn-link btn-pwd">提交</buton>
+                        <button class="btn btn-link btn-waive">取消</buton>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">用户名称</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="name" class="form-control" value="{{data.name}}" data-required="true">
+                    <span class="help-block m-b-none">用户显示名称</span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">邮箱</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="email" class="form-control" value="{{data.email}}" data-required="true">
+                    <span class="help-block m-b-none"></span>
+                </div>
+            </div>
+            <div class="form-group"> 
+                <label class="col-sm-2 control-label">手机号</label> 
+                <div class="col-sm-4"> 
+                    <input type="text" name="phone" class="form-control" value="{{data.code}}" data-required="true">
+                    <span class="help-block m-b-none">常用联系电话</span>
+                </div>
+            </div>
+
+            {% if data.id != common.user.account.id %}
+            <div class="form-group">
+                <label class="col-sm-2 control-label">&nbsp;</label>
+                <div class="col-sm-4">
+                    <div class="checkbox"> <label class="checkbox-custom"> <input type="checkbox" name="enable"{% if data.status == 1 %} checked{% endif %}> <i class="fa fa-fw fa-square-o checked"></i> 可用 </label></div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="line line-dashed line-lg pull-in"></div>
+            <div class="form-group"> 
+                <div class="col-sm-4 col-sm-offset-2">
+                    <button type="submit" class="btn btn-primary btn-save">保存</button>
+                    <button class="btn btn-default btn-cancel">取消</button>
+                    {% if data.id %}
+                        {% if data.id != common.user.account.id %}
+                        <button class="btn btn-link btn-xs btn-del">删除</button>
+                        {% endif %}
+                    {% endif %}
+                    <input type="hidden" name="id" value="{{data.id}}">
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+$(document).ready(function () {
+
+    // ------------------------
+    // Form save.
+    // ------------------------
+    $("form").submit(function() {
+        if (!$(this).parsley().isValid()) {
+            return false;
+        }
+
+        var data = {};
+        data.code = $.trim($("[name='code']").val());
+        data.name = $.trim($("[name='name']").val());
+        data.email = $.trim($("[name='email']").val());
+        data.phone = $.trim($("[name='phone']").val());
+        data.id = $("[name='id']").val();
+
+        {% if not data.id %}
+        data.pwd = $.trim($("[name='pwd']").val());
+        {% endif %}
+
+        {% if data.id != common.user.account.id %}
+        data.enable = $('[name="enable"]').is(":checked")? "1": "0";
+        {% endif %}
+
+        $.post("/admin/account/edit/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == "200") {
+                location.href = "/admin/account/edit/?id=" + resp.id;
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-reset").click(function() {
+        $(".tab-label").hide();
+        $(".tab-input").show();
+        return false;
+    });
+    $(".btn-waive").click(function() {
+        $(".tab-input").hide();
+        $(".tab-label").show();
+        return false;
+    });
+    $(".btn-pwd").click(function() {
+        var data = {
+            "id": $('[name="id"]').val(),
+            "pwd": $('[name="pwd"]').val()
+        };
+        $.post("/admin/account/change-pwd/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                $(".btn-waive").trigger("click");
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-del").click(function() {
+        if (!confirm("确定删除吗?")) {
+            return false;
+        }
+
+        var data = {
+            "id": $('[name="id"]').val()
+        };
+        $.post("/admin/account/del/", data, function(resp) {
+            alert(resp.msg);
+            if (resp.code == '200') {
+                location.href = "/admin/account/";
+            }
+        }, "json");
+
+        return false;
+    });
+
+    $(".btn-cancel").click(function() {
+         location.href = "/admin/account/";
+         return false;
+    });
+});
+</script>
+{% endblock %}
