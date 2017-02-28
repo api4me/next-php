@@ -55,8 +55,8 @@ $setting['routes.case_sensitive'] = true;
 | Common configure, such as name, time.
 |
 */
-$config['common']['salt'] = 'MwMHvPYAs28Z7wtz';
-$config['common']['domain'] = 'http://127.0.0.1:2042/';
+$config['common']['salt'] = 'ArLkxh47ALWVHMU6';
+$config['common']['domain'] = 'http://127.0.0.1:2061/';
 
 /*
 |--------------------------------------------------------------------------
